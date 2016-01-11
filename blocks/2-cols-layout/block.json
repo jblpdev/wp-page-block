@@ -1,0 +1,9 @@
+{
+	"name": "2 Columns Layout",
+	"description": "Layout with a 25% side column and 75% content column.",
+	"outline_file": "outline.twig",
+	"preview_file": "preview.twig",
+	"template_file": "block.twig",
+	"class_file": "block.php",
+	"class_name": "Layout2Cols"
+}
