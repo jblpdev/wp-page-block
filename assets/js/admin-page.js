@@ -7,6 +7,9 @@ $(document).ready(function() {
 
 	$('.wp-admin.post-type-page').each(function(i, element) {
 
+		if ($(element).find('#poststuff').length == 0)
+			return
+
 		var blockPickerAreaId = null
 		var blockPickerPostId = null
 		var blockPickerPageId = null
