@@ -147,9 +147,9 @@ $(document).ready(function() {
 			setupBlock(element)
 		})
 
-		$('.block-picker-modal-show').on('click', showBlockPicker)
-		$('.block-picker-modal-hide').on('click', hideBlockPicker)
-		$('.block-edit-modal-hide').on('click', hideBlockEditor)
+		$('#wpb_block_list').on('click', '.block-picker-modal-show', showBlockPicker)
+		$('#wpb_block_list').on('click', '.block-picker-modal-hide', hideBlockPicker)
+		$('#wpb_block_list').on('click', '.block-edit-modal-hide', hideBlockEditor)
 
 		$('.block-template-info-action .button-insert').on('click', function() {
 
