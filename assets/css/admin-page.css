@@ -100,7 +100,26 @@
 #poststuff .block-content-preview h2,
 #poststuff .block-content-preview h3,
 #poststuff .block-content-preview h4 {
+	margin: 0px;
+	margin-bottom: 15px;
 	padding: 0px;
+}
+
+#poststuff .block-content-preview ul {
+	padding-left: 10px;
+}
+
+#poststuff .block-content-preview li {
+    margin-top: 2px;
+    margin-bottom: 2px;
+	padding: 0px;
+    padding-left: 1em;
+    text-indent: -0.5em;
+}
+
+#poststuff .block-content-preview li:before {
+    color: #666;
+    content: "• ";
 }
 
 #poststuff .block-content-preview p:last-child {

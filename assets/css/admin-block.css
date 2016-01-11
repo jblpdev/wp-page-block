@@ -83,6 +83,7 @@ body.loaded {
 	position: fixed;
 }
 
+#submitdiv h2,
 #submitdiv h3,
 #submitdiv .handlediv,
 #submitdiv #minor-publishing {
@@ -92,6 +93,10 @@ body.loaded {
 #submitdiv #major-publishing-actions {
 	border: none;
 	background: #fff;
+}
+
+#delete-action {
+	display: none;
 }
 
 h1 {

@@ -225,4 +225,18 @@ class Block
 	{
 
 	}
+
+	/**
+	 * Returns the output of a function.
+	 * @method get_output
+	 * @since 0.3.0
+	 */
+	protected function get_output($func)
+	{
+		ob_start();
+		$func();
+		$data = ob_get_contents();
+		ob_end_clean();
+		return $data;
+	}
 }
