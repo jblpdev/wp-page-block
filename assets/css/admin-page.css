@@ -178,6 +178,7 @@
 .block-picker-modal-content {
 	bottom: 0px;
 	left: 0px;
+	overflow: auto;
 	position: absolute;
 	padding: 30px;
 	right: 0px;
@@ -223,6 +224,9 @@
 	font-size: 13px;
 	margin: 0px;
 	margin-top: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .block-template-info-layout {
@@ -293,7 +297,7 @@
 	display: flex;
 	font-size: 13px;
 	font-weight: bold;
-	padding: 15px;
+	padding: 5px;
 	justify-content: center;
 	text-shadow: 0px 1px rgba(255, 255, 255, 0.25);
 	text-transform: uppercase;

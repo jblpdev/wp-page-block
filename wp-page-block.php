@@ -400,6 +400,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 			$json = wpb_read_json($file);
 			$json['ID'] = null;
 			$json['style'] = 'seamless';
+    		$json['position'] = 'normal';
 			$json['location'] = array(
 				array(
 					array(

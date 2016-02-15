@@ -89,6 +89,33 @@ function wpb_block($buib, $post_id, $page_id)
 }
 
 /**
+ * @function wpb_include_block
+ * @since 0.3.0
+ */
+function wpb_include_block($buib, $post_id) {
+
+	$block_template = wpb_block_template_by_buid($buib);
+
+	if ($block_template == null) {
+		return null;
+	}
+
+	$locations = Timber::$locations;
+
+	Timber::$locations = array_merge(array($block_template['path']), Timber::$locations);
+
+	$context['block_buid'] = $block_template['buid'];
+	$context['block_name'] = $block_template['name'];
+	$context['block_description'] = $block_template['description'];
+	$context['post_id'] = $post_id;
+	$context['post'] = new TimberPost($post_id);
+
+	Timber::render($block_template['template_file'], $context);
+
+	Timber::$locations = $locations;
+}
+
+/**
  * @function wpb_block_edit_link
  * @since 0.3.0
  */
