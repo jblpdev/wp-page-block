@@ -57,9 +57,7 @@ $(document).ready(function() {
 			$.ajax({
 				url: window.location,
 				success: function(html) {
-
 					html = $(html).find('[data-post-id="' + postId + '"] .block-content')
-
 					content.replaceWith(html)
 					content.removeClass('block-content-updating')
 				}
@@ -94,9 +92,17 @@ $(document).ready(function() {
 
 			block = $(block)
 
+			var cancel = function(e) {
+				e.preventDefault()
+				e.stopPropagation()
+			}
+
+			block.find('.block-edit a').on('mousedown', cancel)
+			block.find('.block-remove a').on('mousedown', cancel)
+
 			block.find('.block-edit a').on('click', function(e) {
 
-				e.preventDefault()
+				cancel(e)
 
 				var href = $(this).attr('href')
 				var post = $(this).closest('[data-post-id]').attr('data-post-id')
@@ -106,7 +112,7 @@ $(document).ready(function() {
 
 			block.find('.block-remove a').on('click', function(e) {
 
-				e.preventDefault()
+				cancel(e)
 
 				var answer = confirm('This block will be removed, continue ?')
 				if (answer) {
