@@ -10,6 +10,8 @@ $(document).ready(function() {
 		if ($(element).find('#poststuff').length == 0)
 			return
 
+		$(document.body).toggleClass('wp-page-block-post-editor-disabled', $('.block').length > 0)
+
 		var blockPickerAreaId = null
 		var blockPickerPostId = null
 		var blockPickerPageId = null
@@ -83,6 +85,8 @@ $(document).ready(function() {
 			}, function(result) {
 				blocks.append(setupBlock(result))
 			})
+
+			$(document.body).addClass('wp-page-block-post-editor-disabled')
 		}
 
 		/**
@@ -127,6 +131,8 @@ $(document).ready(function() {
 					})
 
 					$(this).closest('.block[data-post-id="' + postId + '"]').remove()
+
+					$(document.body).toggleClass('wp-page-block-post-editor-disabled', $('.block').length)
 				}
 			})
 

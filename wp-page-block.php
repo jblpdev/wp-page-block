@@ -85,6 +85,17 @@ add_action('init', function() {
 add_action('admin_init', function() {
 
 	/**
+	 * Adds a metabox on the block edit page used to store the block id and page
+	 * it was added to. This metabox is hidden.
+	 * @since 1.0.0
+	 */
+	add_meta_box('wpb_block_post_info', 'Page', function() {
+
+		echo 'The post editor has been disabled since this page contains blocks.';
+
+	}, 'page', 'normal', 'high');
+
+	/**
 	 * Adds the block list metabox on the page. This metabox is hidden.
 	 * @since 1.0.0
 	 */
@@ -125,6 +136,8 @@ add_action('admin_init', function() {
 
 	}, 'block', 'normal', 'high');
 
+
+
 	/**
 	 * Styles the previous meta box.
 	 * @since 1.0.0
@@ -145,6 +158,35 @@ add_action('admin_init', function() {
 		$classes[] = 'acf-postbox';
 		return $classes;
 	});
+});
+
+/**
+ * Adds a special class to disable the post box if there is blocks on that page
+ * @action admin_body_class
+ * @since 1.1.0
+ */
+add_filter('admin_body_class', function($classes) {
+
+	global $post;
+
+	$page_blocks = get_post_meta($post->ID, '_page_blocks', true);
+
+	if ($page_blocks) {
+
+		foreach ($page_blocks as $page_block) {
+
+			if (!isset($page_block['buid']) ||
+				!isset($page_block['page_id']) ||
+				!isset($page_block['post_id']) ||
+				!isset($page_block['area_id'])) {
+				continue;
+			}
+
+			return $classes . ' ' . 'wp-page-block-post-editor-disabled';
+		}
+	}
+
+	return $classes;
 });
 
 /**
@@ -438,8 +480,48 @@ add_filter('acf/settings/load_json', function($paths) {
  */
 add_filter('acf/get_field_groups', function($field_groups) {
 
-	if (get_post_type() != 'block') {
+	if (get_post_type() == false) {
 		return;
+	}
+
+	if (get_post_type() != 'block') {
+
+		$page_blocks = wpb_block_template_infos();
+
+		foreach ($page_blocks as $page_block) {
+
+			$block_template = wpb_block_template_by_buid($page_block['buid']);
+			if ($block_template == null) {
+				continue;
+			}
+
+			$path = $block_template['path'];
+
+			foreach (glob("$path/fields/*.json") as $file) {
+
+				$json = wpb_read_json($file);
+				if (count($json) === 0) {
+					continue;
+				}
+
+				$json['ID'] = null;
+				$json['style'] = 'seamless';
+	    		$json['position'] = 'normal';
+				$json['location'] = array(
+					array(
+						array(
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => 'block'
+						),
+					)
+				);
+
+				$field_groups[] = $json;
+			}
+		}
+
+		return $field_groups;
 	}
 
 	$post_id = $_GET['post'];

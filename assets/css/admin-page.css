@@ -1,3 +1,39 @@
+/* ==========================================================================
+   Post Area
+   ========================================================================== */
+
+.wp-page-block-post-editor-disabled .postarea {
+	display: none !important;
+}
+
+.wp-page-block-post-editor-disabled #wpb_block_post_info {
+	display: block;
+}
+
+#wpb_block_post_info {
+	display: none;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+#wpb_block_post_info h2,
+#wpb_block_post_info button {
+	display: none;
+}
+
+#wpb_block_post_info .inside {
+	background: transparent;
+	font-style: italic;
+	margin: 0px;
+	padding: 15px;
+	text-align: center;
+}
+
+/* ==========================================================================
+   Post Box
+   ========================================================================== */
+
 .postbox.seamless {
 	border: 0 none;
     background: transparent;
@@ -98,18 +134,91 @@
 
 #poststuff .block-content-preview h1,
 #poststuff .block-content-preview h2,
-#poststuff .block-content-preview h3,
-#poststuff .block-content-preview h4 {
+#poststuff .block-content-preview h3 {
 	margin: 0px;
-	margin-bottom: 15px;
+	margin-bottom: 10px;
 	padding: 0px;
 }
 
-#poststuff .block-content-preview ul {
+#poststuff .block-content-preview h4,
+#poststuff .block-content-preview h5 {
+	margin: 0px;
+	margin-bottom: 5px;
+	padding: 0px;
+}
+
+#poststuff .block-content-preview h3 {
+	font-size: 20px;
+}
+
+#poststuff .block-content-preview h4 {
+	font-size: 15px;
+}
+
+#poststuff .block-content-preview h5 {
+	color: #6e6e6e;
+	font-size: 13px;
+	font-weight: normal;
+}
+
+#poststuff .block-content-preview .hgroup {
+	margin: 0px;
+	margin-bottom: 10px;
+}
+
+#poststuff .block-content-preview .hgroup h1 {
+	margin: 0px;
+	margin-bottom: 2px;
+}
+
+#poststuff .block-content-preview .hgroup h2 {
+	margin: 0px;
+	margin-bottom: 2px;
+}
+
+#poststuff .block-content-preview .hgroup h3 {
+	margin: 0px;
+	margin-bottom: 2px;
+}
+
+#poststuff .block-content-preview .hgroup h4 {
+	margin: 0px;
+	margin-bottom: 2px;
+}
+
+#poststuff .block-content-preview .hgroup h5 {
+	margin: 0px;
+	margin-bottom: 2px;
+}
+
+#poststuff .block-content-preview .list {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+#poststuff .block-content-preview .list:first-child {
+	margin-top: 0px;
+}
+
+#poststuff .block-content-preview .list:first-child .list-item:first-child {
+	border-top: none;
+}
+
+#poststuff .block-content-preview .list:last-child {
+	margin-bottom: 0px;
+}
+
+#poststuff .block-content-preview .list-item {
+	border-top: 4px solid #f5f5f5;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+#poststuff .block-content-preview ul:not(.blocks) {
 	padding-left: 10px;
 }
 
-#poststuff .block-content-preview li {
+#poststuff .block-content-preview li:not(.block) {
     margin-top: 2px;
     margin-bottom: 2px;
 	padding: 0px;
@@ -117,13 +226,25 @@
     text-indent: -0.5em;
 }
 
-#poststuff .block-content-preview li:before {
+#poststuff .block-content-preview li:not(.block):before {
     color: #666;
-    content: "• ";
+   //content: "• ";
 }
 
 #poststuff .block-content-preview p:last-child {
 	margin: 0px;
+}
+
+#poststuff .block-content-preview > .button {
+	background: transparent;
+	display: inline-block;
+	border-radius: 0px;
+	box-shadow: none;
+	margin: 5px;
+}
+
+#poststuff .block-content-preview > .button p {
+	display: inline-block;
 }
 
 .ui-sortable-placeholder {
