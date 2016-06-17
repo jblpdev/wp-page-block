@@ -35,6 +35,10 @@ function wpb_block_template_infos()
 		}
 	}
 
+	usort($block_template_infos, function($a, $b) {
+		return strcmp($a['name'], $b['name']);
+	});
+
 	return apply_filters('wpb/block_template_infos', $block_template_infos);
 }
 
@@ -54,7 +58,7 @@ function wpb_block_template_paths()
  * @function wpb_block_template_by_buid
  * @since 0.1.0
  */
-function wpb_block_template_by_buid($buib)
+function wpb_block_template_by_buid($buid)
 {
 	static $block_template_infos = null;
 
@@ -63,7 +67,7 @@ function wpb_block_template_by_buid($buib)
 	}
 
 	foreach ($block_template_infos as $block_template_info) {
-		if ($block_template_info['buid'] == $buib) return $block_template_info;
+		if ($block_template_info['buid'] == $buid) return $block_template_info;
 	}
 
 	return null;
@@ -73,9 +77,9 @@ function wpb_block_template_by_buid($buib)
  * @function wpb_block
  * @since 0.1.0
  */
-function wpb_block($buib, $post_id, $page_id)
+function wpb_block($buid, $post_id, $page_id)
 {
-	$block_template = wpb_block_template_by_buid($buib);
+	$block_template = wpb_block_template_by_buid($buid);
 
 	if ($block_template == null) {
 		return null;
@@ -86,33 +90,6 @@ function wpb_block($buib, $post_id, $page_id)
 	require_once $block_template['path'] . '/' . $class_file;
 
 	return new $class_name($post_id, $page_id, $block_template);
-}
-
-/**
- * @function wpb_include_block
- * @since 0.3.0
- */
-function wpb_include_block($buib, $post_id) {
-
-	$block_template = wpb_block_template_by_buid($buib);
-
-	if ($block_template == null) {
-		return null;
-	}
-
-	$locations = Timber::$locations;
-
-	Timber::$locations = array_merge(array($block_template['path']), Timber::$locations);
-
-	$context['block_buid'] = $block_template['buid'];
-	$context['block_name'] = $block_template['name'];
-	$context['block_description'] = $block_template['description'];
-	$context['post_id'] = $post_id;
-	$context['post'] = new TimberPost($post_id);
-
-	Timber::render($block_template['template_file'], $context);
-
-	Timber::$locations = $locations;
 }
 
 /**
@@ -200,27 +177,27 @@ function wpb_block_area($area_id)
  * @function wpb_block_render_outline
  * @since 0.1.0
  */
-function wpb_block_render_outline($buib)
+function wpb_block_render_outline($buid)
 {
-	wpb_block($buib, 0, 0)->render_outline();
+	wpb_block($buid, 0, 0)->render_outline();
 }
 
 /**
  * @function wpb_block_render_preview
  * @since 0.1.0
  */
-function wpb_block_render_preview($buib, $post_id, $page_id)
+function wpb_block_render_preview($buid, $post_id, $page_id)
 {
-	wpb_block($buib, $post_id, $page_id)->render_preview();
+	wpb_block($buid, $post_id, $page_id)->render_preview();
 }
 
 /**
  * @function wpb_block_render_template
  * @since 0.1.0
  */
-function wpb_block_render_template($buib, $post_id, $page_id)
+function wpb_block_render_template($buid, $post_id, $page_id)
 {
-	wpb_block($buib, $post_id, $page_id)->render_template();
+	wpb_block($buid, $post_id, $page_id)->render_template();
 }
 
 /**

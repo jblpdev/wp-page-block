@@ -57,7 +57,7 @@ $(document).ready(function() {
 			var content = $('[data-post-id="' + postId + '"] .block-content').addClass('block-content-updating')
 
 			$.ajax({
-				url: window.location,
+				url: $('[data-post-id="' + postId + '"]').attr('data-page-url'),
 				success: function(html) {
 					html = $(html).find('[data-post-id="' + postId + '"] .block-content')
 					content.replaceWith(html)

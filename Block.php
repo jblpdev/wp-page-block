@@ -159,7 +159,9 @@ class Block
 	{
 		$current = Block::$current;
 		Block::$current = $this;
-		$this->render($this->infos['preview_file'], Timber::get_context());
+		$context = Timber::get_context();
+		$context['page_url'] = get_edit_post_link($this->page_id);
+		$this->render($this->infos['preview_file'], $context);
 		Block::$current = $current;
 	}
 

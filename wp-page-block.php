@@ -91,7 +91,7 @@ add_action('admin_init', function() {
 	 */
 	add_meta_box('wpb_block_post_info', 'Page', function() {
 
-		echo 'The post editor has been disabled since this page contains blocks.';
+		echo 'The post editor has been disabled because this page contains blocks.';
 
 	}, 'page', 'normal', 'high');
 
@@ -136,15 +136,13 @@ add_action('admin_init', function() {
 
 	}, 'block', 'normal', 'high');
 
-
-
 	/**
 	 * Styles the previous meta box.
 	 * @since 1.0.0
 	 */
 	add_filter('postbox_classes_page_wpb_block_list', function($classes = array()){
 		$classes[] = 'seamless';
-		$classes[] = 'acf-postbox';
+		$classes[] = 'wpb-postbox';
 		return $classes;
 	});
 
@@ -155,7 +153,7 @@ add_action('admin_init', function() {
 	add_filter('postbox_classes_block_wpb_block_edit', function($classes = array()) {
 		$classes[] = 'hidden';
 		$classes[] = 'seamless';
-		$classes[] = 'acf-postbox';
+		$classes[] = 'wpb-postbox';
 		return $classes;
 	});
 });
@@ -169,20 +167,23 @@ add_filter('admin_body_class', function($classes) {
 
 	global $post;
 
-	$page_blocks = get_post_meta($post->ID, '_page_blocks', true);
+	if ($post) {
 
-	if ($page_blocks) {
+		$page_blocks = get_post_meta($post->ID, '_page_blocks', true);
 
-		foreach ($page_blocks as $page_block) {
+		if ($page_blocks) {
 
-			if (!isset($page_block['buid']) ||
-				!isset($page_block['page_id']) ||
-				!isset($page_block['post_id']) ||
-				!isset($page_block['area_id'])) {
-				continue;
+			foreach ($page_blocks as $page_block) {
+
+				if (!isset($page_block['buid']) ||
+					!isset($page_block['page_id']) ||
+					!isset($page_block['post_id']) ||
+					!isset($page_block['area_id'])) {
+					continue;
+				}
+
+				return $classes . ' ' . 'wp-page-block-post-editor-disabled';
 			}
-
-			return $classes . ' ' . 'wp-page-block-post-editor-disabled';
 		}
 	}
 
@@ -205,6 +206,10 @@ add_action('admin_enqueue_scripts', function() {
 	if (get_post_type() == 'block') {
 		wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-block.js', false, WPB_VERSION);
 		wp_enqueue_style('wpb_admin_block_css', WPB_URL . 'assets/css/admin-block.css', false, WPB_VERSION);
+	}
+
+	if (is_readable(get_template_directory() . '/editor-style-shared.css')) {
+		wp_enqueue_style('wpb_admin_block_css', get_template_directory_uri() . '/editor-style-shared.css', false, WPB_VERSION);
 	}
 });
 
@@ -480,9 +485,9 @@ add_filter('acf/settings/load_json', function($paths) {
  */
 add_filter('acf/get_field_groups', function($field_groups) {
 
-	if (get_post_type() == false) {
-		return;
-	}
+	// if (get_post_type() == false) {
+	// 	return $field_groups;
+	// }
 
 	if (get_post_type() != 'block') {
 
