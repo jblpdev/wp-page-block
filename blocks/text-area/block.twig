@@ -1,0 +1,18 @@
+<div class="watch" data-watch="enter" data-enter-at="0.15">
+	<div id="block-text-area-{{ post.ID }}" class="block-text-area block-text-area-{{ post.ID }} block-text-area-style-{{ post.get_field('style') }}">
+		<div class="container">
+			<div class="block-text-area-wrapper">
+				{% if post.get_field('title') %}
+					<div class="block-text-area-title">
+						<h2>{{ post.get_field('title') }}</h2>
+					</div>
+				{% endif %}
+				{% if post.get_field('content') %}
+					<div class="block-text-area-content">
+						{{ post.get_field('content') }}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>

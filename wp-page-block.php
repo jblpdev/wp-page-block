@@ -22,8 +22,6 @@ require_once WP_CONTENT_DIR . '/plugins/wp-page-block/Layout.php';
 require_once WP_CONTENT_DIR . '/plugins/wp-page-block/lib/functions.php';
 require_once WP_CONTENT_DIR . '/plugins/wp-page-block/lib/migrations.php';
 
-Timber::$locations = array(WPB_DIR . 'templates/');
-
 //------------------------------------------------------------------------------
 // Post Types
 //------------------------------------------------------------------------------
@@ -62,14 +60,37 @@ register_post_type('block', array(
 ));
 
 //------------------------------------------------------------------------------
-// UI
+// Actions
 //------------------------------------------------------------------------------
+
+/**
+ * @activation-hook
+ * @since 1.0.0
+ */
+register_activation_hook(__FILE__, function() {
+
+	global $acf;
+
+	if (is_plugin_active('timber-library/timber.php') === false ||
+		version_compare(Timber::$version, '1.0.0', '<')) {
+		echo 'Timber-Library version 1.0.0 or higher is required. <br> See https://wordpress.org/plugins/timber-library/';
+		exit;
+	}
+
+	if (is_plugin_active('advanced-custom-fields/acf.php') === false ||
+		version_compare($acf->settings['version'], '4.4.0', '<')) {
+		echo 'Advanced Custom Fields version 4.4.0 or higher is required. <br> See https://wordpress.org/plugins/advanced-custom-fields/';
+		exit;
+	}
+});
 
 /**
  * @action init
  * @since 1.0.0
  */
 add_action('init', function() {
+
+	Timber::$locations = array(WPB_DIR . 'templates/');
 
 	$ver = get_option('wpb_version', '0.1.0');
 	if ($ver === '0.1.0') {
@@ -140,7 +161,7 @@ add_action('admin_init', function() {
 	 * Styles the previous meta box.
 	 * @since 1.0.0
 	 */
-	add_filter('postbox_classes_page_wpb_block_list', function($classes = array()){
+	add_filter('postbox_classes_page_wpb_block_list', function($classes = array()) {
 		$classes[] = 'seamless';
 		$classes[] = 'wpb-postbox';
 		return $classes;
@@ -485,9 +506,9 @@ add_filter('acf/settings/load_json', function($paths) {
  */
 add_filter('acf/get_field_groups', function($field_groups) {
 
-	// if (get_post_type() == false) {
-	// 	return $field_groups;
-	// }
+	if (isset($_GET['post_status']) && $_GET['post_status'] === 'sync') {
+		return $field_groups;
+	}
 
 	if (get_post_type() != 'block') {
 
@@ -510,6 +531,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 				}
 
 				$json['ID'] = null;
+				$json['id'] = null;
 				$json['style'] = 'seamless';
 	    		$json['position'] = 'normal';
 				$json['location'] = array(
@@ -549,6 +571,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 
 			$json = wpb_read_json($file);
 			$json['ID'] = null;
+			$json['id'] = null;
 			$json['style'] = 'seamless';
     		$json['position'] = 'normal';
 			$json['location'] = array(

@@ -10,7 +10,13 @@ require_once WP_CONTENT_DIR . '/plugins/wp-page-block/Layout.php';
  */
 function wpb_read_json($file)
 {
-	return json_decode(file_get_contents($file), true);
+	$json = json_decode(file_get_contents($file), true);
+
+	if ($json == null) {
+		throw new Exception("$file contains invalid JSON.");
+	}
+
+	return $json;
 }
 
 /**
@@ -20,6 +26,23 @@ function wpb_read_json($file)
  */
 function wpb_block_template_infos()
 {
+	$user_roles = array();
+
+	foreach (wp_get_current_user()->roles as $role) {
+		if ($role === 'author') {
+			$user_roles[] = 'author';
+		} else if ($role === 'editor') {
+			$user_roles[] = 'author';
+			$user_roles[] = 'editor';
+		} else if ($role === 'administrator') {
+			$user_roles[] = 'author';
+			$user_roles[] = 'editor';
+			$user_roles[] = 'administrator';
+		}
+	}
+
+	$user_roles = array_unique($user_roles);
+
 	$block_template_infos = array();
 
 	foreach (wpb_block_template_paths() as $path) {
@@ -31,7 +54,11 @@ function wpb_block_template_infos()
 			$data['buid'] = $type;
 			$data['path'] = $path;
 
-			$block_template_infos[] = $data;
+			$required_role = isset($data['user']) ? $data['user'] : 'editor';
+
+			if (in_array($required_role, $user_roles)) {
+				$block_template_infos[] = $data;
+			}
 		}
 	}
 
