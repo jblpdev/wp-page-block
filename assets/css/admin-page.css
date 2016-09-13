@@ -379,6 +379,25 @@
    Block Templates
    ========================================================================== */
 
+.block-template-info-category {
+
+}
+
+.block-template-info-category-name {
+	font-size: 16px;
+	font-weight: normal;
+	border-bottom: 1px solid #dedede;
+	margin: 0px;
+	margin-bottom: 20px;
+	padding: 15px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.block-template-info-list {
+
+}
+
 .block-template-info-list {
 	margin-left: -15px;
 	margin-right: -15px;

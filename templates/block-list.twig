@@ -18,22 +18,27 @@
 		</div>
 		<div class="block-picker-modal-content">
 			<div class="block-template-info-list">
-				{% for block_template_info in block_template_infos %}
-					<div class="block-template-info-cell">
-						<div class="block-template-info" data-buid="{{block_template_info.buid}}">
-							<div class="block-template-info-header">
-								<div class="block-template-info-name">{{block_template_info.name}}</div>
-								<div class="block-template-info-desc">{{block_template_info.description}}</div>
-							</div>
-							<div class="block-template-info-layout">
-								<div class="block-template-info-layout-frame">
-									{{ function('wpb_block_render_outline', block_template_info.buid) }}
+				{% for category_name, block_template_infos in categories %}
+					<div class="block-template-info-category clearfix">
+						<div class="block-template-info-category-name">{{category_name}}</div>
+						{% for block_template_info in block_template_infos %}
+							<div class="block-template-info-cell">
+								<div class="block-template-info" data-buid="{{block_template_info.buid}}">
+									<div class="block-template-info-header">
+										<div class="block-template-info-name">{{block_template_info.name}}</div>
+										<div class="block-template-info-desc">{{block_template_info.description}}</div>
+									</div>
+									<div class="block-template-info-layout">
+										<div class="block-template-info-layout-frame">
+											{{ function('wpb_block_render_outline', block_template_info.buid) }}
+										</div>
+									</div>
+									<div class="block-template-info-action">
+										<div class="button button-primary button-insert">Insert</div>
+									</div>
 								</div>
 							</div>
-							<div class="block-template-info-action">
-								<div class="button button-primary button-insert">Insert</div>
-							</div>
-						</div>
+						{% endfor %}
 					</div>
 				{% endfor %}
 			</div>

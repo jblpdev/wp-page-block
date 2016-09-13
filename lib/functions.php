@@ -63,28 +63,21 @@ function wpb_block_template_infos()
 				$type = str_replace(WP_CONTENT_DIR, '', $path);
 
 				$data = wpb_read_json($path . '/block.json');
-				$data['buid'] = $type;
-				$data['path'] = $path;
+				$data['category'] = isset($data['category']) ? $data['category'] : 'Uncategorized';
 				$data['fields'] = isset($data['fields']) ? $data['fields'] : array();
 				$data['styles'] = isset($data['styles']) ? $data['styles'] : array();
+				$data['buid'] = $type;
+				$data['path'] = $path;
 
 				if (wpb_user_has_access($data) == false) {
 					continue;
 				}
 
 				foreach (glob($path . '/fields/*.json') as $file) {
-
-					$json = wpb_read_json($file);
-					if (count($json) === 0) {
-						continue;
-					}
-
-					$json['fields'][0]['label'] = 'DAS';
-
-					$data['fields'][] = $json;
-
-					$_block_template_infos_cache[] = $data;
+					$data['fields'][] = wpb_read_json($file);
 				}
+
+				$_block_template_infos_cache[] = $data;
 			}
 		}
 

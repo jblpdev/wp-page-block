@@ -135,8 +135,20 @@ add_action('admin_init', function() {
 			$page_blocks = array_filter($page_blocks, $filter);
 		}
 
+		$categories = array();
+		foreach ($block_template_infos as $block_template_info) {
+			$categories[$block_template_info['category']] = array();
+		}
+
+		foreach ($block_template_infos as $block_template_info) {
+			$categories[$block_template_info['category']][] = $block_template_info;
+		}
+
+		ksort($categories);
+
 		$data = Timber::get_context();
 		$data['page_blocks'] = $page_blocks;
+		$data['categories'] = $categories;
 		$data['block_template_infos'] = $block_template_infos;
 		$data['block_template_paths'] = $block_template_paths;
 		Timber::render('block-list.twig', $data);
