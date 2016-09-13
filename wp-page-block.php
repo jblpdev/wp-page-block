@@ -609,9 +609,9 @@ add_filter('acf/get_fields', function($fields, $parent) {
 			if (count($block_template['styles'])) {
 
 				$fields[] = array(
-					'key' => 'field_wpb_style_' . md5($block_template['buid']),
+					'key' => 'field_wpb_css_style_' . md5($block_template['buid']),
 					'label' => 'Style',
-					'name' => 'wpb_style',
+					'name' => 'wpb_css_style',
 					'type' => 'radio',
 					'instructions' => '',
 					'required' => 0,
@@ -633,7 +633,7 @@ add_filter('acf/get_fields', function($fields, $parent) {
 					'prefix' => 'acf',
 					'class' => null,
 					'value' => null,
-					'_name' => 'wpb_style',
+					'_name' => 'wpb_css_style',
 					'_input' => null,
 					'_valid' => 1
 				);
@@ -724,21 +724,21 @@ add_action('acf/save_post', function($post_id) {
 
 	if (is_array($data)) foreach ($data as $key => $val) {
 
-		if (strpos($key, 'field_wpb_style_') > -1) {
-			update_post_meta($post_id, 'wpb_style', $val);
-			update_post_meta($post_id, '_wpb_style', $key);
-			continue;
-		}
-
-		if (strpos($key, 'field_wpb_css_id_') > -1) {
-			update_post_meta($post_id, 'wpb_css_id', $val);
-			update_post_meta($post_id, '_wpb_css_id', $key);
+		if (strpos($key, 'field_wpb_css_style_') > -1) {
+			update_post_meta($post_id, 'wpb_css_style', $val);
+			update_post_meta($post_id, '_wpb_css_style', $key);
 			continue;
 		}
 
 		if (strpos($key, 'field_wpb_css_class_') > -1) {
 			update_post_meta($post_id, 'wpb_css_class', $val);
 			update_post_meta($post_id, '_wpb_css_class', $key);
+			continue;
+		}
+
+		if (strpos($key, 'field_wpb_css_id_') > -1) {
+			update_post_meta($post_id, 'wpb_css_id', $val);
+			update_post_meta($post_id, '_wpb_css_id', $key);
 			continue;
 		}
 	}

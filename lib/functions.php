@@ -282,6 +282,39 @@ function wpb_block_render_children($area_id)
 	Block::get_current()->render_children($area_id);
 }
 
+/**
+ * @function wpb_block_attr
+ * @since 1.0.0
+ */
+function wpb_block_attr($post, $base) {
+
+	$id = get_field('wpb_css_id', $post);
+	$class = get_field('wpb_css_class', $post);
+	$style = get_field('wpb_css_style', $post);
+
+	if ($id == null) {
+		$id = sprintf('%s-%s', $base, $post->ID);
+	} else {
+		$id = preg_replace('/[^a-zA-Z0-9]+/mis', '-', $id);
+	}
+
+	if ($class) {
+		$class = preg_replace('/[^a-zA-Z0-9]+/mis', '-', $class);
+	}
+
+	if ($style) {
+		$style = preg_replace('/[^a-zA-Z0-9]+/mis', '-', $style);
+		$style = sprintf('%s-%s', $base, $style);
+	}
+
+	return strtr('id="{id}" class="{base} {class} {style}"', array(
+		'{id}'    => $id,
+		'{base}'  => $base,
+		'{class}' => $class,
+		'{style}' => $style
+	));
+}
+
 //------------------------------------------------------------------------------
 // Twig Filters
 //------------------------------------------------------------------------------
@@ -293,4 +326,5 @@ TimberHelper::function_wrapper('wpb_block_render_preview');
 TimberHelper::function_wrapper('wpb_block_render_template');
 TimberHelper::function_wrapper('wpb_block_render_children');
 TimberHelper::function_wrapper('wpb_block_area');
+TimberHelper::function_wrapper('wpb_block_attr');
 
