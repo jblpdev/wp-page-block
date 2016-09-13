@@ -5,5 +5,11 @@
 	"preview_file": "preview.twig",
 	"template_file": "block.twig",
 	"class_file": "block.php",
-	"class_name": "TextAreaBlock"
+	"class_name": "TextAreaBlock",
+	"category": "Basic",
+	"styles": {
+		"style-1": "Style 1",
+		"style-2": "Style 2",
+		"style-3": "Style 3"
+	}
 }

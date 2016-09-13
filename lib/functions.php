@@ -4,9 +4,11 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once WP_CONTENT_DIR . '/plugins/wp-page-block/Block.php';
 require_once WP_CONTENT_DIR . '/plugins/wp-page-block/Layout.php';
 
+$_block_template_infos_cache = null;
+
 /**
  * @function wpb_read_json
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_read_json($file)
 {
@@ -20,59 +22,86 @@ function wpb_read_json($file)
 }
 
 /**
+ * Returns whether the user has access to a specified block for admin editing.
+ * @function wpb_user_has_access
+ * @since 1.0.0
+ */
+function wpb_user_has_access($page_block) {
+
+	$role = isset($page_block['role']) ? $page_block['role'] : null;
+
+	if ($role == null) {
+		return true;
+	}
+
+	$trim = function($str) {
+		return trim($str);
+	};
+
+	$role = array_map($trim, explode(',', $role));
+
+	return count(array_intersect($role, wp_get_current_user()->roles)) > 0;
+}
+
+/**
  * Returns an array that contains data about all available templates.
  * @function wpb_block_template_infos
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_template_infos()
 {
-	$user_roles = array();
+	global $_block_template_infos_cache;
 
-	foreach (wp_get_current_user()->roles as $role) {
-		if ($role === 'author') {
-			$user_roles[] = 'author';
-		} else if ($role === 'editor') {
-			$user_roles[] = 'author';
-			$user_roles[] = 'editor';
-		} else if ($role === 'administrator') {
-			$user_roles[] = 'author';
-			$user_roles[] = 'editor';
-			$user_roles[] = 'administrator';
-		}
-	}
+	if ($_block_template_infos_cache == null) {
 
-	$user_roles = array_unique($user_roles);
+		$_block_template_infos_cache = array();
 
-	$block_template_infos = array();
+		foreach (wpb_block_template_paths() as $path) {
 
-	foreach (wpb_block_template_paths() as $path) {
+			foreach (glob($path . '/*' , GLOB_ONLYDIR) as $path) {
 
-		foreach (glob($path . '/*' , GLOB_ONLYDIR) as $path) {
+				$type = str_replace(WP_CONTENT_DIR, '', $path);
 
-			$type = str_replace(WP_CONTENT_DIR, '', $path);
-			$data = wpb_read_json($path . '/block.json');
-			$data['buid'] = $type;
-			$data['path'] = $path;
+				$data = wpb_read_json($path . '/block.json');
+				$data['buid'] = $type;
+				$data['path'] = $path;
+				$data['fields'] = isset($data['fields']) ? $data['fields'] : array();
+				$data['styles'] = isset($data['styles']) ? $data['styles'] : array();
 
-			$required_role = isset($data['user']) ? $data['user'] : 'editor';
+				if (wpb_user_has_access($data) == false) {
+					continue;
+				}
 
-			if (in_array($required_role, $user_roles)) {
-				$block_template_infos[] = $data;
+				foreach (glob($path . '/fields/*.json') as $file) {
+
+					$json = wpb_read_json($file);
+					if (count($json) === 0) {
+						continue;
+					}
+
+					$json['fields'][0]['label'] = 'DAS';
+
+					$data['fields'][] = $json;
+
+					$_block_template_infos_cache[] = $data;
+				}
 			}
 		}
+
+		usort($_block_template_infos_cache, function($a, $b) {
+			return strcmp($a['name'], $b['name']);
+		});
+
+		$_block_template_infos_cache = apply_filters('wpb/block_template_infos', $_block_template_infos_cache);
 	}
 
-	usort($block_template_infos, function($a, $b) {
-		return strcmp($a['name'], $b['name']);
-	});
-
-	return apply_filters('wpb/block_template_infos', $block_template_infos);
+	return $_block_template_infos_cache;
 }
 
 /**
  * Returns an array that contains all templates path.
  * @function wpb_block_template_paths
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_template_paths()
 {
@@ -83,7 +112,7 @@ function wpb_block_template_paths()
  * Returns the block template data using a block unique identifier. This
  * identifier is made from the block path relative to the app directory.
  * @function wpb_block_template_by_buid
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_template_by_buid($buid)
 {
@@ -101,8 +130,32 @@ function wpb_block_template_by_buid($buid)
 }
 
 /**
+ * Returns the block template that contains the specified field group.
+ * @function wbp_block_template_by_field_group_key
+ * @since 1.0.0
+ */
+function wbp_block_template_by_field_group_key($key)
+{
+	static $block_template_infos = null;
+
+	if ($block_template_infos == null) {
+		$block_template_infos = wpb_block_template_infos();
+	}
+
+	foreach ($block_template_infos as $block_template_info) {
+		foreach ($block_template_info['fields'] as $field) {
+			if ($field['key'] == $key) {
+				return $block_template_info;
+			}
+		}
+	}
+
+	return null;
+}
+
+/**
  * @function wpb_block
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block($buid, $post_id, $page_id)
 {
@@ -202,7 +255,7 @@ function wpb_block_area($area_id)
 
 /**
  * @function wpb_block_render_outline
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_render_outline($buid)
 {
@@ -211,7 +264,7 @@ function wpb_block_render_outline($buid)
 
 /**
  * @function wpb_block_render_preview
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_render_preview($buid, $post_id, $page_id)
 {
@@ -220,7 +273,7 @@ function wpb_block_render_preview($buid, $post_id, $page_id)
 
 /**
  * @function wpb_block_render_template
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_render_template($buid, $post_id, $page_id)
 {
@@ -229,7 +282,7 @@ function wpb_block_render_template($buid, $post_id, $page_id)
 
 /**
  * @function wpb_block_render_children
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wpb_block_render_children($area_id)
 {

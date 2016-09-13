@@ -5,5 +5,6 @@
 	"preview_file": "preview.twig",
 	"template_file": "block.twig",
 	"class_file": "block.php",
-	"class_name": "Layout2Cols"
+	"class_name": "Layout2Cols",
+	"category": "Layout"
 }

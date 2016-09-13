@@ -45,7 +45,7 @@ class Block
 	/**
 	 * @field infos
 	 * @private
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	private $infos = array();
 
@@ -55,7 +55,7 @@ class Block
 
 	/**
 	 * @constructor
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function __construct($post_id, $page_id, $infos)
 	{
@@ -123,7 +123,7 @@ class Block
 	/**
 	 * Returns whether this block can be edited.
 	 * @method is_editable
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function is_editable()
 	{
@@ -133,7 +133,7 @@ class Block
 	/**
 	 * Returns whether this block can be deleted.
 	 * @method is_deletable
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function is_deletable()
 	{
@@ -143,7 +143,7 @@ class Block
 	/**
 	 * Renders the outline template.
 	 * @method render_outline
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function render_outline()
 	{
@@ -153,7 +153,7 @@ class Block
 	/**
 	 * Renders the block preview template.
 	 * @method render_preview
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function render_preview()
 	{
@@ -168,7 +168,7 @@ class Block
 	/**
 	 * Renders the block template.
 	 * @method render_template
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function render_template()
 	{
@@ -181,7 +181,7 @@ class Block
 	/**
 	 * Renders a specific template.
 	 * @method render
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function render($template, $context)
 	{
@@ -207,7 +207,7 @@ class Block
 	/**
 	 * Returns the template locations.
 	 * @method get_render_location
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function get_render_location()
 	{
@@ -221,7 +221,7 @@ class Block
 	/**
 	 * Called when the block is about to be rendered.
 	 * @method on_render
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	protected function on_render($template, array &$data)
 	{

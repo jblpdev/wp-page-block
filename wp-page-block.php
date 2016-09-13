@@ -77,9 +77,9 @@ register_activation_hook(__FILE__, function() {
 		exit;
 	}
 
-	if (is_plugin_active('advanced-custom-fields/acf.php') === false ||
-		version_compare($acf->settings['version'], '4.4.0', '<')) {
-		echo 'Advanced Custom Fields version 4.4.0 or higher is required. <br> See https://wordpress.org/plugins/advanced-custom-fields/';
+	if (is_plugin_active('advanced-custom-fields-pro/acf.php') === false ||
+		version_compare($acf->settings['version'], '5.4.0', '<')) {
+		echo 'Advanced Custom Fields version 5.4.0 or higher is required. <br> See https://wordpress.org/plugins/advanced-custom-fields/';
 		exit;
 	}
 });
@@ -92,8 +92,8 @@ add_action('init', function() {
 
 	Timber::$locations = array(WPB_DIR . 'templates/');
 
-	$ver = get_option('wpb_version', '0.1.0');
-	if ($ver === '0.1.0') {
+	$ver = get_option('wpb_version', '1.0.0');
+	if ($ver === '1.0.0') {
 		$ver = migrate_0_1_0_to_1_0_0();
 	}
 
@@ -347,7 +347,7 @@ add_filter('redirect_post_location', function($location, $post_id) {
 			break;
 	}
 
-    return $location;
+	return $location;
 
 }, 10, 2);
 
@@ -482,7 +482,7 @@ add_action('wp_ajax_remove_page_block', function() {
 //------------------------------------------------------------------------------
 
 /**
- * @filter acf/settings/load_jsonk
+ * @filter acf/settings/load_json
  * @since 1.0.0
  */
 add_filter('acf/settings/load_json', function($paths) {
@@ -523,17 +523,11 @@ add_filter('acf/get_field_groups', function($field_groups) {
 
 			$path = $block_template['path'];
 
-			foreach (glob("$path/fields/*.json") as $file) {
-
-				$json = wpb_read_json($file);
-				if (count($json) === 0) {
-					continue;
-				}
+			foreach ($block_template['fields'] as $json) {
 
 				$json['ID'] = null;
-				$json['id'] = null;
 				$json['style'] = 'seamless';
-	    		$json['position'] = 'normal';
+				$json['position'] = 'normal';
 				$json['location'] = array(
 					array(
 						array(
@@ -567,13 +561,11 @@ add_filter('acf/get_field_groups', function($field_groups) {
 
 		$path = $block_template['path'];
 
-		foreach (glob("$path/fields/*.json") as $file) {
+		foreach ($block_template['fields'] as $json) {
 
-			$json = wpb_read_json($file);
 			$json['ID'] = null;
-			$json['id'] = null;
 			$json['style'] = 'seamless';
-    		$json['position'] = 'normal';
+			$json['position'] = 'normal';
 			$json['location'] = array(
 				array(
 					array(
@@ -589,4 +581,154 @@ add_filter('acf/get_field_groups', function($field_groups) {
 	}
 
 	return $field_groups;
+});
+
+/**
+ * @filter acf/get_fields
+ * @since 1.0.0
+ */
+add_filter('acf/get_fields', function($fields, $parent) {
+
+	if ($parent) {
+
+		$block_template = wbp_block_template_by_field_group_key($parent['key']);
+		if ($block_template) {
+
+			if (count($block_template['styles'])) {
+
+				$fields[] = array(
+					'key' => 'field_wpb_style_' . md5($block_template['buid']),
+					'label' => 'Style',
+					'name' => 'wpb_style',
+					'type' => 'radio',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'choices' => $block_template['styles'],
+					'other_choice' => 0,
+					'save_other_choice' => 0,
+					'default_value' => '',
+					'allow_null' => true,
+					'layout' => 'vertical',
+					// ACF Specificx
+					'ID' => 0,
+					'id' => null,
+					'prefix' => 'acf',
+					'class' => null,
+					'value' => null,
+					'_name' => 'wpb_style',
+					'_input' => null,
+					'_valid' => 1
+				);
+			}
+
+			if (current_user_can('administrator')) {
+
+				$fields[] = array(
+					'key' => 'field_wpb_css_id_' . md5($block_template['buid']),
+					'label' => 'CSS ID',
+					'name' => 'wpb_css_id',
+					'type' => 'text',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => ''
+					),
+					'default_value' => '',
+					'placeholder' => '',
+					'prepend' => '',
+					'append' => '',
+					'maxlength' => '',
+					'readonly' => 0,
+					'disabled' => 0,
+					// ACF Specific
+					'ID' => 0,
+					'id' => null,
+					'prefix' => 'acf',
+					'value' => null,
+					'class' => null,
+					'_name' => 'wpb_css_id',
+					'_input' => null,
+					'_valid' => 1
+				);
+
+				$fields[] = array(
+					'key' => 'field_wpb_css_class_' . md5($block_template['buid']),
+					'label' => 'CSS Class',
+					'name' => 'wpb_css_class',
+					'type' => 'text',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => ''
+					),
+					'default_value' => '',
+					'placeholder' => '',
+					'prepend' => '',
+					'append' => '',
+					'maxlength' => '',
+					'readonly' => 0,
+					'disabled' => 0,
+					// ACF Specific
+					'ID' => 0,
+					'id' => null,
+					'prefix' => 'acf',
+					'value' => null,
+					'class' => null,
+					'_name' => 'css_class',
+					'_input' => null,
+					'_valid' => 1
+				);
+			}
+		}
+	}
+
+	return $fields;
+
+}, 10, 2);
+
+/**
+ * @action acf/save_post
+ * @since 1.0.0
+ */
+add_action('acf/save_post', function($post_id) {
+
+	$data = isset($_POST['acf']) ? $_POST['acf'] : null;
+
+	if ($data == null) {
+		return;
+	}
+
+	if (is_array($data)) foreach ($data as $key => $val) {
+
+		if (strpos($key, 'field_wpb_style_') > -1) {
+			update_post_meta($post_id, 'wpb_style', $val);
+			update_post_meta($post_id, '_wpb_style', $key);
+			continue;
+		}
+
+		if (strpos($key, 'field_wpb_css_id_') > -1) {
+			update_post_meta($post_id, 'wpb_css_id', $val);
+			update_post_meta($post_id, '_wpb_css_id', $key);
+			continue;
+		}
+
+		if (strpos($key, 'field_wpb_css_class_') > -1) {
+			update_post_meta($post_id, 'wpb_css_class', $val);
+			update_post_meta($post_id, '_wpb_css_class', $key);
+			continue;
+		}
+	}
+
 });
