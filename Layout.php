@@ -27,7 +27,7 @@ class Layout extends Block
 		$page_id = $this->get_page_id();
 		$post_id = $this->get_post_id();
 
-		$page_blocks = get_post_meta($page_id, '_page_blocks', true);
+		$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
 
 		if ($page_blocks) {
 

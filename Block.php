@@ -47,7 +47,7 @@ class Block
 	 * @private
 	 * @since 1.0.0
 	 */
-	private $infos = array();
+	public $infos = array();
 
 	//--------------------------------------------------------------------------
 	// Methods
@@ -161,6 +161,8 @@ class Block
 		Block::$current = $this;
 		$context = Timber::get_context();
 		$context['page_url'] = get_edit_post_link($this->page_id);
+		$context['header'] = apply_filters('wpb/block_preview_header', '', $this);
+		$context['footer'] = apply_filters('wpb/block_preview_footer', '', $this);
 		$this->render($this->infos['preview_file'], $context);
 		Block::$current = $current;
 	}

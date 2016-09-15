@@ -43,7 +43,7 @@ $labels = array(
 	'not_found_in_trash' => __('No page block found in Trash.', 'your-plugin-textdomain' )
 );
 
-register_post_type('block', array(
+register_post_type('wpb-block', array(
 	'labels'             => $labels,
 	'description'        => '',
 	'public'             => false,
@@ -116,79 +116,8 @@ add_action('admin_init', function() {
 
 	}, 'page', 'normal', 'high');
 
-	/**
-	 * Adds the block list metabox on the page. This metabox is hidden.
-	 * @since 1.0.0
-	 */
-	add_meta_box('wpb_block_list', 'Blocks', function() {
+	wpb_block_builder_metabox();
 
-		$block_template_infos = wpb_block_template_infos();
-		$block_template_paths = wpb_block_template_paths();
-
-		$filter = function($page_block) {
-			return wpb_block_template_by_buid($page_block['buid']);
-		};
-
-		$page_blocks = get_post_meta(get_the_id(), '_page_blocks', true);
-
-		if ($page_blocks) {
-			$page_blocks = array_filter($page_blocks, $filter);
-		}
-
-		$categories = array();
-		foreach ($block_template_infos as $block_template_info) {
-			$categories[$block_template_info['category']] = array();
-		}
-
-		foreach ($block_template_infos as $block_template_info) {
-			$categories[$block_template_info['category']][] = $block_template_info;
-		}
-
-		ksort($categories);
-
-		$data = Timber::get_context();
-		$data['page_blocks'] = $page_blocks;
-		$data['categories'] = $categories;
-		$data['block_template_infos'] = $block_template_infos;
-		$data['block_template_paths'] = $block_template_paths;
-		Timber::render('block-list.twig', $data);
-
-	}, 'page', 'normal', 'high');
-
-	/**
-	 * Adds a metabox on the block edit page used to store the block id and page
-	 * it was added to. This metabox is hidden.
-	 * @since 1.0.0
-	 */
-	add_meta_box('wpb_block_edit', 'Page', function() {
-
-		$data = Timber::get_context();
-		$data['post_id'] = $_REQUEST['post_id'];
-		$data['page_id'] = $_REQUEST['page_id'];
-		Timber::render('block-edit.twig', $data);
-
-	}, 'block', 'normal', 'high');
-
-	/**
-	 * Styles the previous meta box.
-	 * @since 1.0.0
-	 */
-	add_filter('postbox_classes_page_wpb_block_list', function($classes = array()) {
-		$classes[] = 'seamless';
-		$classes[] = 'wpb-postbox';
-		return $classes;
-	});
-
-	/**
-	 * Styles the previous meta box.
-	 * @since 1.0.0
-	 */
-	add_filter('postbox_classes_block_wpb_block_edit', function($classes = array()) {
-		$classes[] = 'hidden';
-		$classes[] = 'seamless';
-		$classes[] = 'wpb-postbox';
-		return $classes;
-	});
 });
 
 /**
@@ -202,7 +131,7 @@ add_filter('admin_body_class', function($classes) {
 
 	if ($post) {
 
-		$page_blocks = get_post_meta($post->ID, '_page_blocks', true);
+		$page_blocks = get_post_meta($post->ID, '_wpb_blocks', true);
 
 		if ($page_blocks) {
 
@@ -221,6 +150,7 @@ add_filter('admin_body_class', function($classes) {
 	}
 
 	return $classes;
+
 });
 
 /**
@@ -230,13 +160,15 @@ add_filter('admin_body_class', function($classes) {
  */
 add_action('admin_enqueue_scripts', function() {
 
-	if (get_post_type() == 'page') {
-		wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-page.js', false, WPB_VERSION);
-		wp_enqueue_style('wpb_admin_render_block_list_form_css', WPB_URL . 'assets/css/admin-page.css', false, WPB_VERSION);
-		wp_enqueue_style('wpb_admin_render_block_list_grid_css', WPB_URL . 'assets/css/admin-grid.css', false, WPB_VERSION);
+	foreach (wpb_block_builder_metabox_context() as $post_type) {
+		if (get_post_type() == $post_type) {
+			wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-page.js', false, WPB_VERSION);
+			wp_enqueue_style('wpb_admin_render_block_list_form_css', WPB_URL . 'assets/css/admin-page.css', false, WPB_VERSION);
+			wp_enqueue_style('wpb_admin_render_block_list_grid_css', WPB_URL . 'assets/css/admin-grid.css', false, WPB_VERSION);
+		}
 	}
 
-	if (get_post_type() == 'block') {
+	if (get_post_type() == 'wpb-block') {
 		wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-block.js', false, WPB_VERSION);
 		wp_enqueue_style('wpb_admin_block_css', WPB_URL . 'assets/css/admin-block.css', false, WPB_VERSION);
 	}
@@ -244,6 +176,7 @@ add_action('admin_enqueue_scripts', function() {
 	if (is_readable(get_template_directory() . '/editor-style-shared.css')) {
 		wp_enqueue_style('wpb_admin_block_css', get_template_directory_uri() . '/editor-style-shared.css', false, WPB_VERSION);
 	}
+
 });
 
 /**
@@ -251,9 +184,9 @@ add_action('admin_enqueue_scripts', function() {
  * @action add_meta_boxes_block
  * @since 1.0.0
  */
-add_action('add_meta_boxes_block', function() {
-	remove_meta_box('submitdiv', 'block', 'side');
-	add_meta_box('submitdiv', __('Save'), 'post_submit_meta_box', 'block', 'normal', 'default');
+add_action('add_meta_boxes_wpb-block', function() {
+	remove_meta_box('submitdiv', 'wpb-block', 'side');
+	add_meta_box('submitdiv', __('Save'), 'post_submit_meta_box', 'wpb-block', 'normal', 'default');
 }, 0, 1);
 
 /**
@@ -263,7 +196,7 @@ add_action('add_meta_boxes_block', function() {
  */
 add_filter('gettext', function($translation, $text) {
 
-	if (get_post_type() == 'block') {
+	if (get_post_type() == 'wpb-block') {
 		switch ($text) {
 			case 'Publish': return 'Save';
 		}
@@ -284,10 +217,11 @@ add_filter('gettext', function($translation, $text) {
  */
 add_action('save_post', function($post_id, $post) {
 
-	if (wp_is_post_revision($post_id))
+	if (wp_is_post_revision($post_id)) {
 		return;
+	}
 
-	if (get_post_type() == 'block') {
+	if (get_post_type() == 'wpb-block') {
 
 		$revs = wp_get_post_revisions($post_id);
 
@@ -299,37 +233,42 @@ add_action('save_post', function($post_id, $post) {
 
 			$parent = get_post($post->post_parent);
 
-			$page_blocks = get_post_meta($parent->ID, '_page_blocks', true);
+			$page_blocks = get_post_meta($parent->ID, '_wpb_blocks', true);
 			foreach ($page_blocks as &$page_block) {
 				if ($page_block['post_id'] == $post_id) {
 					$page_block['post_revision_id'] = !isset($page_block['post_revision_id']) || $page_block['post_revision_id'] == null ? $rev->ID : $page_block['post_revision_id'];
 				}
 			}
 
-			update_post_meta($parent->ID, '_page_blocks', $page_blocks);
+			update_post_meta($parent->ID, '_wpb_blocks', $page_blocks);
 		}
 
 		return $post_id;
 	}
 
-	if (get_post_type() == 'page' && isset($_POST['_page_blocks']) && is_array($_POST['_page_blocks'])) {
+	foreach (wpb_block_builder_metabox_context() as $post_type) {
 
-		$page_blocks = $_POST['_page_blocks'];
-		$page_blocks_old = get_post_meta(get_the_id(), '_page_blocks', true);
-		$page_blocks_new = array();
+		if (get_post_type() == $post_type && isset($_POST['_wpb_blocks']) && is_array($_POST['_wpb_blocks'])) {
 
-		foreach ($page_blocks as $post_id) {
-			foreach ($page_blocks_old as $page_block_old) {
-				if ($page_block_old['post_id'] == $post_id) {
-					$page_block_old['post_revision_id'] = null;
-					$page_blocks_new[] = $page_block_old;
+			$page_blocks = $_POST['_wpb_blocks'];
+			$page_blocks_old = get_post_meta(get_the_id(), '_wpb_blocks', true);
+			$page_blocks_new = array();
+
+			foreach ($page_blocks as $post_id) {
+				foreach ($page_blocks_old as $page_block_old) {
+					if ($page_block_old['post_id'] == $post_id) {
+						$page_block_old['post_revision_id'] = null;
+						$page_blocks_new[] = $page_block_old;
+					}
 				}
 			}
+
+			update_post_meta(get_the_id(), '_wpb_blocks', $page_blocks_new);
+
+			do_action('wpb/save_block', get_the_id(), $page_blocks_new);
+
+			return $post_id; // necessary ?
 		}
-
-		update_post_meta(get_the_id(), '_page_blocks', $page_blocks_new);
-
-		return $post_id;
 	}
 
 	return $post_id;
@@ -354,8 +293,8 @@ add_action('wp_restore_post_revision', function($post_id, $revision_id) {
 add_filter('redirect_post_location', function($location, $post_id) {
 
 	switch (get_post_type()) {
-		case 'block':
-			$location = $location . sprintf('&post_id=%s&page_id=%s#block_saved', $_REQUEST['post_id'], $_REQUEST['page_id']);
+		case 'wpb-block':
+			$location = $location . '#block_saved';
 			break;
 	}
 
@@ -376,39 +315,42 @@ add_filter('the_content', function($content) {
 		return $content;
 	}
 
-	if (get_post_type() == 'page') {
+	foreach (wpb_block_builder_metabox_context() as $post_type) {
 
-		$page_blocks = get_post_meta($post->ID, '_page_blocks', true);
+		if (get_post_type() == $post_type) {
 
-		if ($page_blocks) {
+			$page_blocks = get_post_meta($post->ID, '_wpb_blocks', true);
 
-			ob_start();
+			if ($page_blocks) {
 
-			foreach ($page_blocks as $page_block) {
+				ob_start();
 
-				if (!isset($page_block['buid']) ||
-					!isset($page_block['page_id']) ||
-					!isset($page_block['post_id'])) {
-					continue;
-				}
+				foreach ($page_blocks as $page_block) {
 
-				if (is_preview() === false && isset($page_block['post_revision_id'])) {
-					$rev = wp_get_post_revision($page_block['post_revision_id']);
-					if ($rev) {
-						$page_block['post_id'] = $rev->ID;
+					if (!isset($page_block['buid']) ||
+						!isset($page_block['page_id']) ||
+						!isset($page_block['post_id'])) {
+						continue;
 					}
+
+					if (is_preview() === false && isset($page_block['post_revision_id'])) {
+						$rev = wp_get_post_revision($page_block['post_revision_id']);
+						if ($rev) {
+							$page_block['post_id'] = $rev->ID;
+						}
+					}
+
+					if ($page_block['into_id'] == 0) wpb_block_render_template(
+						$page_block['buid'],
+						$page_block['post_id'],
+						$page_block['page_id']
+					);
 				}
 
-				if ($page_block['into_id'] == 0) wpb_block_render_template(
-					$page_block['buid'],
-					$page_block['post_id'],
-					$page_block['page_id']
-				);
+				$content = ob_get_contents();
+
+				ob_end_clean();
 			}
-
-			$content = ob_get_contents();
-
-			ob_end_clean();
 		}
 	}
 
@@ -427,6 +369,8 @@ add_filter('the_content', function($content) {
  */
 add_action('wp_ajax_add_page_block', function() {
 
+	global $post;
+
 	$buid = $_POST['buid'];
 	$page_id = $_POST['page_id'];
 	$into_id = $_POST['into_id'];
@@ -438,13 +382,13 @@ add_action('wp_ajax_add_page_block', function() {
 
 	$post_id = wp_insert_post(array(
 		'post_parent'  => $page_id,
-		'post_type'    => 'block',
+		'post_type'    => 'wpb-block',
 		'post_title'   => sprintf('Page %s : Block %s', $page_id, $buid),
 		'post_content' => '',
 		'post_status'  => 'publish',
 	));
 
-	$page_blocks = get_post_meta($page_id, '_page_blocks', true);
+	$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
 	if ($page_blocks == null) {
 		$page_blocks = array();
 	}
@@ -459,9 +403,14 @@ add_action('wp_ajax_add_page_block', function() {
 
 	$page_blocks[] = $page_block;
 
-	update_post_meta($page_id, '_page_blocks', $page_blocks);
+	update_post_meta($page_id, '_wpb_blocks', $page_blocks);
+
+	$post = get_post($page_id);
+
+	setup_postdata($post);
 
 	wpb_block_render_preview($buid, $post_id, $page_id);
+
 	exit;
 });
 
@@ -475,7 +424,7 @@ add_action('wp_ajax_remove_page_block', function() {
 	$post_id = $_POST['post_id'];
 	$page_id = $_POST['page_id'];
 
-	$page_blocks = get_post_meta($page_id, '_page_blocks', true);
+	$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
 	if ($page_blocks == null) {
 		return;
 	}
@@ -484,7 +433,7 @@ add_action('wp_ajax_remove_page_block', function() {
 		return $page_block['post_id'] != $post_id;
 	});
 
-	update_post_meta($page_id, '_page_blocks', $page_blocks);
+	update_post_meta($page_id, '_wpb_blocks', $page_blocks);
 
 	wp_delete_post($post_id);
 });
@@ -522,7 +471,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 		return $field_groups;
 	}
 
-	if (get_post_type() != 'block') {
+	if (get_post_type() != 'wpb-block') {
 
 		$page_blocks = wpb_block_template_infos();
 
@@ -560,7 +509,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 	$post_id = $_GET['post'];
 	$page_id = $_GET['page_id'];
 
-	$page_blocks = array_filter(get_post_meta($page_id, '_page_blocks', true), function($page_block) use($post_id) {
+	$page_blocks = array_filter(get_post_meta($page_id, '_wpb_blocks', true), function($page_block) use($post_id) {
 		return $page_block['post_id'] == $post_id;
 	});
 
@@ -583,7 +532,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 					array(
 						'param'    => 'post_type',
 						'operator' => '==',
-						'value'    => 'block'
+						'value'    => 'wpb-block'
 					),
 				)
 			);
@@ -604,6 +553,7 @@ add_filter('acf/get_fields', function($fields, $parent) {
 	if ($parent) {
 
 		$block_template = wbp_block_template_by_field_group_key($parent['key']);
+
 		if ($block_template) {
 
 			if (count($block_template['styles'])) {

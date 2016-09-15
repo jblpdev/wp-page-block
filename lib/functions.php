@@ -147,6 +147,85 @@ function wbp_block_template_by_field_group_key($key)
 }
 
 /**
+ * @function wpb_block_builder_metabox
+ * @since 1.0.0
+ */
+function wpb_block_builder_metabox()
+{
+	foreach (wpb_block_builder_metabox_context() as $post_type) {
+
+		add_meta_box('wpb_block_builder_metabox', wpb_block_builder_metabox_title($post_type), function() {
+
+			$block_template_infos = wpb_block_template_infos();
+			$block_template_paths = wpb_block_template_paths();
+
+			$filter = function($page_block) {
+				return wpb_block_template_by_buid($page_block['buid']);
+			};
+
+			$page_blocks = get_post_meta(get_the_id(), '_wpb_blocks', true);
+
+			if ($page_blocks) {
+				$page_blocks = array_filter($page_blocks, $filter);
+			}
+
+			$categories = array();
+
+			foreach ($block_template_infos as $block_template_info) {
+				$categories[$block_template_info['category']] = array();
+			}
+
+			foreach ($block_template_infos as $block_template_info) {
+				$categories[$block_template_info['category']][] = $block_template_info;
+			}
+
+			ksort($categories);
+
+			$data = Timber::get_context();
+			$data['page_blocks'] = $page_blocks;
+			$data['categories'] = $categories;
+			$data['block_template_infos'] = $block_template_infos;
+			$data['block_template_paths'] = $block_template_paths;
+			Timber::render('block-builder-metabox.twig', $data);
+
+		}, $post_type, 'normal', wpb_block_builder_metabox_priority($post_type));
+
+		add_filter('postbox_classes_' . $post_type . '_wpb_block_builder_metabox', function($classes = array()) {
+			$classes[] = 'wpb-postbox';
+			$classes[] = 'seamless';
+			return $classes;
+		});
+	}
+}
+
+/**
+ * @function wpb_block_builder_metabox_context
+ * @since 1.0.0
+ */
+function wpb_block_builder_metabox_context()
+{
+	return apply_filters('wpb/block_builder_metabox_context', array('page'));
+}
+
+/**
+ * @function wpb_block_builder_metabox_title
+ * @since 1.0.0
+ */
+function wpb_block_builder_metabox_title($post_type)
+{
+	return apply_filters('wpb/block_builder_metabox_title', 'Blocks', $post_type);
+}
+
+/**
+ * @function wpb_block_builder_metabox_priority
+ * @since 1.0.0
+ */
+function wpb_block_builder_metabox_priority($post_type)
+{
+	return apply_filters('wpb/block_builder_metabox_priority', 'low', $post_type);
+}
+
+/**
  * @function wpb_block
  * @since 1.0.0
  */
@@ -219,7 +298,7 @@ function wpb_block_area($area_id)
 
 	echo '<ul class="blocks" data-area-id="' . $area_id . '">';
 
-	$page_blocks = get_post_meta($page_id, '_page_blocks', true);
+	$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
 
 	if ($page_blocks) {
 

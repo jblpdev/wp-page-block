@@ -1,6 +1,6 @@
-<li class="block" data-post-id="{{post_id}}" data-page-id="{{page_id}}" data-page-url="{{ page_url }}">
+<li class="block" data-post-id="{{post_id}}" data-page-id="{{page_id}}" data-page-url="{{ page_url }}" data-block-buid="{{ block_buid }}" data-block-name="{{ block_name }}">
 
-	<input type="hidden" name="_page_blocks[]" value="{{post_id}}">
+	<input type="hidden" name="_wpb_blocks[]" value="{{post_id}}">
 
 	<div class="block-bar clearfix">
 		<div class="block-name">{{ block_name }}</div>
@@ -10,6 +10,10 @@
 		</div>
 	</div>
 
+	{% if header %}
+		<div class="block-content-preview-header">{{ header }}</div>
+	{% endif %}
+
 	<div class="block-content">
 		<div class="block-content-loading">
 			<span class="spinner"></span>
@@ -18,5 +22,9 @@
 			{% block preview %}{% endblock %}
 		</div>
 	</div>
+
+	{% if footer %}
+		<div class="block-content-preview-footer">{{ footer }}</div>
+	{% endif %}
 
 </li>

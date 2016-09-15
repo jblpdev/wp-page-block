@@ -132,6 +132,22 @@
 	visibility: visible;
 }
 
+#poststuff .block-content-preview-header {
+	background: #f3fafd;
+	border-bottom: 1px solid #dedede;
+	padding: 15px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+#poststuff .block-content-preview-footer {
+	background: #f3fafd;
+	border-top: 1px solid #dedede;
+	padding: 15px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
 #poststuff .block-content-preview h1,
 #poststuff .block-content-preview h2,
 #poststuff .block-content-preview h3 {
