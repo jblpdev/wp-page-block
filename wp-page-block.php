@@ -162,6 +162,7 @@ add_action('admin_enqueue_scripts', function() {
 
 	foreach (wpb_block_builder_metabox_context() as $post_type) {
 		if (get_post_type() == $post_type) {
+			wp_enqueue_script('jquery_nestable', WPB_URL . 'assets/js/jquery-nestable.js', false, WPB_VERSION);
 			wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-page.js', false, WPB_VERSION);
 			wp_enqueue_style('wpb_admin_render_block_list_form_css', WPB_URL . 'assets/css/admin-page.css', false, WPB_VERSION);
 			wp_enqueue_style('wpb_admin_render_block_list_grid_css', WPB_URL . 'assets/css/admin-grid.css', false, WPB_VERSION);
@@ -231,16 +232,17 @@ add_action('save_post', function($post_id, $post) {
 
 		if ($rev) {
 
-			$parent = get_post($post->post_parent);
+			$page_id = get_post($post->post_parent)->ID;
 
-			$page_blocks = get_post_meta($parent->ID, '_wpb_blocks', true);
+			$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
+
 			foreach ($page_blocks as &$page_block) {
 				if ($page_block['post_id'] == $post_id) {
 					$page_block['post_revision_id'] = !isset($page_block['post_revision_id']) || $page_block['post_revision_id'] == null ? $rev->ID : $page_block['post_revision_id'];
 				}
 			}
 
-			update_post_meta($parent->ID, '_wpb_blocks', $page_blocks);
+			update_post_meta($page_id, '_wpb_blocks', $page_blocks);
 		}
 
 		return $post_id;
@@ -251,13 +253,18 @@ add_action('save_post', function($post_id, $post) {
 		if (get_post_type() == $post_type && isset($_POST['_wpb_blocks']) && is_array($_POST['_wpb_blocks'])) {
 
 			$page_blocks = $_POST['_wpb_blocks'];
+			$page_blocks_into_id = $_POST['_wpb_blocks_into_id'];
+			$page_blocks_area_id = $_POST['_wpb_blocks_area_id'];
+
 			$page_blocks_old = get_post_meta(get_the_id(), '_wpb_blocks', true);
 			$page_blocks_new = array();
 
-			foreach ($page_blocks as $post_id) {
+			foreach ($page_blocks as $index => $post_id) {
 				foreach ($page_blocks_old as $page_block_old) {
 					if ($page_block_old['post_id'] == $post_id) {
 						$page_block_old['post_revision_id'] = null;
+						$page_block_old['into_id'] = $page_blocks_into_id[$index];
+						$page_block_old['area_id'] = $page_blocks_area_id[$index];
 						$page_blocks_new[] = $page_block_old;
 					}
 				}
@@ -266,12 +273,10 @@ add_action('save_post', function($post_id, $post) {
 			update_post_meta(get_the_id(), '_wpb_blocks', $page_blocks_new);
 
 			do_action('wpb/save_block', get_the_id(), $page_blocks_new);
-
-			return $post_id; // necessary ?
 		}
 	}
 
-	return $post_id;
+	return $post_id; // necessary ?
 
 }, 10, 2);
 
@@ -319,7 +324,7 @@ add_filter('the_content', function($content) {
 
 		if (get_post_type() == $post_type) {
 
-			$page_blocks = get_post_meta($post->ID, '_wpb_blocks', true);
+			$page_blocks = wpb_get_blocks($post->ID);
 
 			if ($page_blocks) {
 
@@ -340,7 +345,7 @@ add_filter('the_content', function($content) {
 						}
 					}
 
-					if ($page_block['into_id'] == 0) wpb_block_render_template(
+					if ($page_block['into_id'] == 0) wpb_render_block_template(
 						$page_block['buid'],
 						$page_block['post_id'],
 						$page_block['page_id']
@@ -388,7 +393,7 @@ add_action('wp_ajax_add_page_block', function() {
 		'post_status'  => 'publish',
 	));
 
-	$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
+	$page_blocks = wpb_get_blocks($page_id);
 	if ($page_blocks == null) {
 		$page_blocks = array();
 	}
@@ -409,7 +414,7 @@ add_action('wp_ajax_add_page_block', function() {
 
 	setup_postdata($post);
 
-	wpb_block_render_preview($buid, $post_id, $page_id);
+	wpb_render_block_preview($buid, $post_id, $page_id);
 
 	exit;
 });
@@ -424,7 +429,7 @@ add_action('wp_ajax_remove_page_block', function() {
 	$post_id = $_POST['post_id'];
 	$page_id = $_POST['page_id'];
 
-	$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
+	$page_blocks = wpb_get_blocks($page_id);
 	if ($page_blocks == null) {
 		return;
 	}
@@ -509,7 +514,7 @@ add_filter('acf/get_field_groups', function($field_groups) {
 	$post_id = $_GET['post'];
 	$page_id = $_GET['page_id'];
 
-	$page_blocks = array_filter(get_post_meta($page_id, '_wpb_blocks', true), function($page_block) use($post_id) {
+	$page_blocks = array_filter(wpb_get_blocks($page_id), function($page_block) use($post_id) {
 		return $page_block['post_id'] == $post_id;
 	});
 

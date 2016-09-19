@@ -2,8 +2,8 @@
 
 <ul class="blocks">
 	{% for page_block in page_blocks %}
-		{% if page_block.into_id == "0" %}
-			{{ wpb_block_render_preview(page_block.buid, page_block.post_id, page_block.page_id) }}
+		{% if page_block.into_id == "0" or page_block.into_id == "-1" %}
+			{{ wpb_render_block_preview(page_block.buid, page_block.post_id, page_block.page_id) }}
 		{% endif %}
 	{% endfor %}
 </ul>
@@ -30,7 +30,7 @@
 									</div>
 									<div class="block-template-info-layout">
 										<div class="block-template-info-layout-frame">
-											{{ function('wpb_block_render_outline', block_template_info.buid) }}
+											{{ function('wpb_render_block_outline', block_template_info.buid) }}
 										</div>
 									</div>
 									<div class="block-template-info-action">

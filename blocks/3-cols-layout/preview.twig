@@ -1,8 +1,8 @@
 {% extends "block-preview-base.twig" %}
 {% block preview %}
 	<div class="row">
-		<div class="col-md-2">{{ wpb_block_area('side_column_lf') }}</div>
-		<div class="col-md-8">{{ wpb_block_area('main_column') }}</div>
-		<div class="col-md-2">{{ wpb_block_area('side_column_rg') }}</div>
+		<div class="col-md-2">{{ wpb_render_block_area('side_column_lf') }}</div>
+		<div class="col-md-8">{{ wpb_render_block_area('main_column') }}</div>
+		<div class="col-md-2">{{ wpb_render_block_area('side_column_rg') }}</div>
 	</div>
 {% endblock %}

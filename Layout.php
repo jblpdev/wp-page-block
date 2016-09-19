@@ -27,7 +27,8 @@ class Layout extends Block
 		$page_id = $this->get_page_id();
 		$post_id = $this->get_post_id();
 
-		$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
+		$page_blocks = wpb_get_blocks($page_id);
+		$page_blocks = apply_filters('wpb/children_blocks', $page_blocks, $this);
 
 		if ($page_blocks) {
 
@@ -40,11 +41,14 @@ class Layout extends Block
 				}
 
 				if ($page_block['into_id'] == $post_id &&
-					$page_block['area_id'] == $area_id) wpb_block_render_template(
-					$page_block['buid'],
-					$page_block['post_id'],
-					$page_block['page_id']
-				);
+					$page_block['area_id'] == $area_id) {
+
+					wpb_render_block_template(
+						$page_block['buid'],
+						$page_block['post_id'],
+						$page_block['page_id']
+					);
+				}
 			}
 		}
 	}

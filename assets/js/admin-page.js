@@ -109,6 +109,10 @@ $(document).ready(function() {
 
 		block = $(block)
 
+		if (block.is('.disable')) {
+			return
+		}
+
 		var cancel = function(e) {
 			e.preventDefault()
 			e.stopPropagation()
@@ -160,19 +164,49 @@ $(document).ready(function() {
 			block.closest('.blocks').css('height', '')
 		})
 
-		block.find('.blocks').sortable()
-		block.find('.blocks').disableSelection()
+		createSortable()
 
 		return block
 	}
 
-	$('.wp-admin').each(function(i, element) {
+	var sortableInitialized = false
 
-		if ($(element).find('#poststuff').length === 0) {
+	/**
+	 * @function createSortable
+	 * @since 1.0.0
+	 */
+	var createSortable = function() {
+
+		$('.blocks').disableSelection()
+
+		if (sortableInitialized == false) {
+			sortableInitialized = true
+
+			var options = {
+				 connectWith: '.blocks',
+				 cancel: '.disable',
+				 stop: function(event, ui) {
+				 	var item = $(ui.item)
+				 	var intoIdInput = item.find('> [name="_wpb_blocks_into_id[]"]')
+				 	var areaIdInput = item.find('> [name="_wpb_blocks_area_id[]"]')
+				 	var intoId = item.parent().closest('[data-post-id]').attr('data-post-id') || 0
+				 	var areaId = item.parent().closest('[data-area-id]').attr('data-area-id') || 0
+				 	intoIdInput.val(intoId)
+				 	areaIdInput.val(areaId)
+				 }
+			}
+
+			$('.blocks').sortable(options)
 			return
 		}
 
-		if ($(element).find('#wpb_block_builder_metabox').length === 0) {
+		$('.blocks').sortable('refresh')
+	}
+
+	$('.wp-admin').each(function(i, element) {
+
+		if ($(element).find('#poststuff').length === 0 ||
+			$(element).find('#wpb_block_builder_metabox').length === 0) {
 			return
 		}
 
@@ -192,8 +226,8 @@ $(document).ready(function() {
 			$('.block-picker-modal').addClass('block-picker-modal-visible')
 		}
 
-		$('.blocks').sortable()
-		$('.blocks').disableSelection()
+		createSortable()
+
 		$('.blocks').each(function(i, element) {
 			setupBlock(element)
 		})

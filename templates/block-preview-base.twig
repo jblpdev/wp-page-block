@@ -1,12 +1,16 @@
-<li class="block" data-post-id="{{post_id}}" data-page-id="{{page_id}}" data-page-url="{{ page_url }}" data-block-buid="{{ block_buid }}" data-block-name="{{ block_name }}">
+<li class="block {% if disable %} disable {% endif %}" data-post-id="{{post_id}}" data-page-id="{{page_id}}" data-page-url="{{ page_url }}" data-block-buid="{{ block_buid }}" data-block-name="{{ block_name }}">
 
 	<input type="hidden" name="_wpb_blocks[]" value="{{post_id}}">
+	<input type="hidden" name="_wpb_blocks_into_id[]" value="{{into_id}}">
+	<input type="hidden" name="_wpb_blocks_area_id[]" value="{{area_id}}">
 
 	<div class="block-bar clearfix">
 		<div class="block-name">{{ block_name }}</div>
 		<div class="block-actions">
-			{{ wpb_block_remove_link() }}
-			{{ wpb_block_edit_link() }}
+			{% if not disable %}
+				{{ wpb_render_block_remove_link() }}
+				{{ wpb_render_block_edit_link() }}
+			{% endif %}
 		</div>
 	</div>
 

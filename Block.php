@@ -155,15 +155,22 @@ class Block
 	 * @method render_preview
 	 * @since 1.0.0
 	 */
-	public function render_preview()
+	public function render_preview($options = array())
 	{
 		$current = Block::$current;
+
 		Block::$current = $this;
+
 		$context = Timber::get_context();
 		$context['page_url'] = get_edit_post_link($this->page_id);
+		$context['disable'] = isset($options['disable']) ? $options['disable'] : false;
+		$context['into_id'] = isset($options['into_id']) ? $options['into_id'] : 0;
+		$context['area_id'] = isset($options['area_id']) ? $options['area_id'] : 0;
 		$context['header'] = apply_filters('wpb/block_preview_header', '', $this);
 		$context['footer'] = apply_filters('wpb/block_preview_footer', '', $this);
+
 		$this->render($this->infos['preview_file'], $context);
+
 		Block::$current = $current;
 	}
 
@@ -201,7 +208,13 @@ class Block
 		$context['page'] = new TimberPost($this->page_id);
 		$context['post'] = new TimberPost($this->post_id);
 
+		ob_start();
 		Timber::render($template, $context);
+		$render = ob_get_contents();
+		$render = apply_filters('wpb/render', $render, $this);
+		ob_end_clean();
+
+		echo $render;
 
 		Timber::$locations = $locations;
 	}

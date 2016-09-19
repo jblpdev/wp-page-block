@@ -66,6 +66,10 @@
 	padding: 0px;
 }
 
+.block.disable {
+	opacity: 0.45;
+}
+
 .block-bar {
 	background: #f5f5f5 url(../images/sort.png) no-repeat center left;
 	border-bottom: 1px solid #dedede;
@@ -254,7 +258,7 @@
     margin-top: 2px;
     margin-bottom: 2px;
 	padding: 0px;
-    padding-left: 1em;
+    //padding-left: 1em;
     text-indent: -0.5em;
 }
 

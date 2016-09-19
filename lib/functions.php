@@ -163,7 +163,7 @@ function wpb_block_builder_metabox()
 				return wpb_block_template_by_buid($page_block['buid']);
 			};
 
-			$page_blocks = get_post_meta(get_the_id(), '_wpb_blocks', true);
+			$page_blocks = wpb_get_blocks(get_the_id());
 
 			if ($page_blocks) {
 				$page_blocks = array_filter($page_blocks, $filter);
@@ -182,8 +182,8 @@ function wpb_block_builder_metabox()
 			ksort($categories);
 
 			$data = Timber::get_context();
-			$data['page_blocks'] = $page_blocks;
 			$data['categories'] = $categories;
+			$data['page_blocks'] = $page_blocks;
 			$data['block_template_infos'] = $block_template_infos;
 			$data['block_template_paths'] = $block_template_paths;
 			Timber::render('block-builder-metabox.twig', $data);
@@ -226,10 +226,19 @@ function wpb_block_builder_metabox_priority($post_type)
 }
 
 /**
- * @function wpb_block
+ * @function wpb_get_blocks
  * @since 1.0.0
  */
-function wpb_block($buid, $post_id, $page_id)
+function wpb_get_blocks($page_id)
+{
+	return get_post_meta($page_id, '_wpb_blocks', true);
+}
+
+/**
+ * @function wpb_get_block
+ * @since 1.0.0
+ */
+function wpb_get_block($buid, $post_id, $page_id)
 {
 	$block_template = wpb_block_template_by_buid($buid);
 
@@ -248,7 +257,7 @@ function wpb_block($buid, $post_id, $page_id)
  * @function wpb_block_edit_link
  * @since 0.3.0
  */
-function wpb_block_edit_link()
+function wpb_render_block_edit_link()
 {
 	$block = Block::get_current();
 	if ($block == null) {
@@ -264,10 +273,10 @@ function wpb_block_edit_link()
 }
 
 /**
- * @function wpb_block_remove_link
+ * @function wpb_render_block_remove_link
  * @since 0.3.0
  */
-function wpb_block_remove_link()
+function wpb_render_block_remove_link()
 {
 	$block = Block::get_current();
 	if ($block == null) {
@@ -283,10 +292,10 @@ function wpb_block_remove_link()
 }
 
 /**
- * @function wpb_block_area
+ * @function wpb_render_block_area
  * @since 0.3.0
  */
-function wpb_block_area($area_id)
+function wpb_render_block_area($area_id)
 {
 	$block = Block::get_current();
 	if ($block == null) {
@@ -298,7 +307,8 @@ function wpb_block_area($area_id)
 
 	echo '<ul class="blocks" data-area-id="' . $area_id . '">';
 
-	$page_blocks = get_post_meta($page_id, '_wpb_blocks', true);
+	$page_blocks = wpb_get_blocks($page_id);
+	$page_blocks = apply_filters('wpb/children_blocks', $page_blocks, $block);
 
 	if ($page_blocks) {
 
@@ -311,12 +321,21 @@ function wpb_block_area($area_id)
 				continue;
 			}
 
+			$disable = isset($page_block['disable']);
+
 			if ($page_block['into_id'] == $post_id &&
-				$page_block['area_id'] == $area_id) wpb_block_render_preview(
-			 	$page_block['buid'],
-			 	$page_block['post_id'],
-			 	$page_block['page_id']
-			);
+				$page_block['area_id'] == $area_id) {
+				wpb_render_block_preview(
+			 		$page_block['buid'],
+			 		$page_block['post_id'],
+			 		$page_block['page_id'],
+			 		array(
+			 			'disable' => $disable,
+			 			'into_id' => $post_id,
+			 			'area_id' => $area_id
+			 		)
+				);
+			}
 		}
 	}
 
@@ -326,46 +345,46 @@ function wpb_block_area($area_id)
 }
 
 /**
- * @function wpb_block_render_outline
+ * @function wpb_render_block_outline
  * @since 1.0.0
  */
-function wpb_block_render_outline($buid)
+function wpb_render_block_outline($buid)
 {
-	wpb_block($buid, 0, 0)->render_outline();
+	wpb_get_block($buid, 0, 0)->render_outline();
 }
 
 /**
- * @function wpb_block_render_preview
+ * @function wpb_render_block_preview
  * @since 1.0.0
  */
-function wpb_block_render_preview($buid, $post_id, $page_id)
+function wpb_render_block_preview($buid, $post_id, $page_id, $options = array())
 {
-	wpb_block($buid, $post_id, $page_id)->render_preview();
+	wpb_get_block($buid, $post_id, $page_id)->render_preview($options);
 }
 
 /**
- * @function wpb_block_render_template
+ * @function wpb_render_block_template
  * @since 1.0.0
  */
-function wpb_block_render_template($buid, $post_id, $page_id)
+function wpb_render_block_template($buid, $post_id, $page_id)
 {
-	wpb_block($buid, $post_id, $page_id)->render_template();
+	wpb_get_block($buid, $post_id, $page_id)->render_template();
 }
 
 /**
- * @function wpb_block_render_children
+ * @function wpb_render_block_children
  * @since 1.0.0
  */
-function wpb_block_render_children($area_id)
+function wpb_render_block_children($area_id)
 {
 	Block::get_current()->render_children($area_id);
 }
 
 /**
- * @function wpb_block_attr
+ * @function wpb_render_block_attr
  * @since 1.0.0
  */
-function wpb_block_attr($post, $base) {
+function wpb_render_block_attr($post, $base) {
 
 	$id = get_field('wpb_css_id', $post);
 	$class = get_field('wpb_css_class', $post);
@@ -398,12 +417,12 @@ function wpb_block_attr($post, $base) {
 // Twig Filters
 //------------------------------------------------------------------------------
 
-TimberHelper::function_wrapper('wpb_block_edit_link');
-TimberHelper::function_wrapper('wpb_block_remove_link');
-TimberHelper::function_wrapper('wpb_block_render_outline');
-TimberHelper::function_wrapper('wpb_block_render_preview');
-TimberHelper::function_wrapper('wpb_block_render_template');
-TimberHelper::function_wrapper('wpb_block_render_children');
-TimberHelper::function_wrapper('wpb_block_area');
-TimberHelper::function_wrapper('wpb_block_attr');
+TimberHelper::function_wrapper('wpb_render_block_edit_link');
+TimberHelper::function_wrapper('wpb_render_block_remove_link');
+TimberHelper::function_wrapper('wpb_render_block_outline');
+TimberHelper::function_wrapper('wpb_render_block_preview');
+TimberHelper::function_wrapper('wpb_render_block_template');
+TimberHelper::function_wrapper('wpb_render_block_children');
+TimberHelper::function_wrapper('wpb_render_block_area');
+TimberHelper::function_wrapper('wpb_render_block_attr');
 
