@@ -116,7 +116,7 @@ add_action('admin_init', function() {
 
 	}, 'page', 'normal', 'high');
 
-	wpb_block_builder_metabox();
+	wpb_block_metabox();
 
 });
 
@@ -160,7 +160,7 @@ add_filter('admin_body_class', function($classes) {
  */
 add_action('admin_enqueue_scripts', function() {
 
-	foreach (wpb_block_builder_metabox_context() as $post_type) {
+	foreach (wpb_block_context() as $post_type) {
 		if (get_post_type() == $post_type) {
 			wp_enqueue_script('jquery_nestable', WPB_URL . 'assets/js/jquery-nestable.js', false, WPB_VERSION);
 			wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-page.js', false, WPB_VERSION);
@@ -248,7 +248,7 @@ add_action('save_post', function($post_id, $post) {
 		return $post_id;
 	}
 
-	foreach (wpb_block_builder_metabox_context() as $post_type) {
+	foreach (wpb_block_context() as $post_type) {
 
 		if (get_post_type() == $post_type && isset($_POST['_wpb_blocks']) && is_array($_POST['_wpb_blocks'])) {
 
@@ -320,7 +320,7 @@ add_filter('the_content', function($content) {
 		return $content;
 	}
 
-	foreach (wpb_block_builder_metabox_context() as $post_type) {
+	foreach (wpb_block_context() as $post_type) {
 
 		if (get_post_type() == $post_type) {
 

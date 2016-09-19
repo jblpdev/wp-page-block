@@ -7,7 +7,7 @@ $(document).ready(function() {
 	 * @since 1.0.0
 	 */
 	var hideBlockPicker = window.wpbHideBlockPicker = function() {
-		$('.block-picker-modal').removeClass('block-picker-modal-visible')
+		$('.block-metabox-modal').removeClass('block-metabox-modal-visible')
 	}
 
 	/**
@@ -177,14 +177,12 @@ $(document).ready(function() {
 	 */
 	var createSortable = function() {
 
-		$('.blocks').disableSelection()
-
 		if (sortableInitialized == false) {
 			sortableInitialized = true
 
 			var options = {
 				 connectWith: '.blocks',
-				 cancel: '.disable',
+				 cancel: '.disable, select, input',
 				 stop: function(event, ui) {
 				 	var item = $(ui.item)
 				 	var intoIdInput = item.find('> [name="_wpb_blocks_into_id[]"]')
@@ -197,6 +195,7 @@ $(document).ready(function() {
 			}
 
 			$('.blocks').sortable(options)
+			$('.blocks').disableSelection()
 			return
 		}
 
@@ -206,7 +205,7 @@ $(document).ready(function() {
 	$('.wp-admin').each(function(i, element) {
 
 		if ($(element).find('#poststuff').length === 0 ||
-			$(element).find('#wpb_block_builder_metabox').length === 0) {
+			$(element).find('#wpb_block_metabox').length === 0) {
 			return
 		}
 
@@ -223,7 +222,7 @@ $(document).ready(function() {
 			blockPickerAreaId = $(this).attr('data-area-id') || 0
 			blockPickerPostId = $(this).closest('[data-post-id]').attr('data-post-id') || 0
 			blockPickerPageId = $(this).closest('[data-page-id]').attr('data-page-id') || 0
-			$('.block-picker-modal').addClass('block-picker-modal-visible')
+			$('#wpb-pick.block-metabox-modal').addClass('block-metabox-modal-visible')
 		}
 
 		createSortable()
@@ -232,9 +231,9 @@ $(document).ready(function() {
 			setupBlock(element)
 		})
 
-		$('#wpb_block_builder_metabox').on('click', '.block-picker-modal-show', showBlockPicker)
-		$('#wpb_block_builder_metabox').on('click', '.block-picker-modal-hide', hideBlockPicker)
-		$('#wpb_block_builder_metabox').on('click', '.block-edit-modal-hide', hideBlockEditor)
+		$('#wpb_block_metabox').on('click', '.block-metabox-modal-show', showBlockPicker)
+		$('#wpb_block_metabox').on('click', '.block-metabox-modal-hide', hideBlockPicker)
+		$('#wpb_block_metabox').on('click', '.block-edit-modal-hide', hideBlockEditor)
 
 		$('.block-template-info-action .button-insert').on('click', function() {
 

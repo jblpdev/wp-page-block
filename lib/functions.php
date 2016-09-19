@@ -147,14 +147,14 @@ function wbp_block_template_by_field_group_key($key)
 }
 
 /**
- * @function wpb_block_builder_metabox
+ * @function wpb_block_metabox
  * @since 1.0.0
  */
-function wpb_block_builder_metabox()
+function wpb_block_metabox()
 {
-	foreach (wpb_block_builder_metabox_context() as $post_type) {
+	foreach (wpb_block_context() as $post_type) {
 
-		add_meta_box('wpb_block_builder_metabox', wpb_block_builder_metabox_title($post_type), function() {
+		add_meta_box('wpb_block_metabox', wpb_block_metabox_title($post_type), function() {
 
 			$block_template_infos = wpb_block_template_infos();
 			$block_template_paths = wpb_block_template_paths();
@@ -181,16 +181,21 @@ function wpb_block_builder_metabox()
 
 			ksort($categories);
 
+			$pages = wp_list_pages(array(
+				'echo' => false
+			));
+
 			$data = Timber::get_context();
+			$data['pages'] = $pages;
 			$data['categories'] = $categories;
 			$data['page_blocks'] = $page_blocks;
 			$data['block_template_infos'] = $block_template_infos;
 			$data['block_template_paths'] = $block_template_paths;
-			Timber::render('block-builder-metabox.twig', $data);
+			Timber::render('block-metabox.twig', $data);
 
-		}, $post_type, 'normal', wpb_block_builder_metabox_priority($post_type));
+		}, $post_type, 'normal', wpb_block_metabox_priority($post_type));
 
-		add_filter('postbox_classes_' . $post_type . '_wpb_block_builder_metabox', function($classes = array()) {
+		add_filter('postbox_classes_' . $post_type . '_wpb_block_metabox', function($classes = array()) {
 			$classes[] = 'wpb-postbox';
 			$classes[] = 'seamless';
 			return $classes;
@@ -199,30 +204,30 @@ function wpb_block_builder_metabox()
 }
 
 /**
- * @function wpb_block_builder_metabox_context
+ * @function wpb_block_context
  * @since 1.0.0
  */
-function wpb_block_builder_metabox_context()
+function wpb_block_context()
 {
-	return apply_filters('wpb/block_builder_metabox_context', array('page'));
+	return apply_filters('wpb/block_context', array('page'));
 }
 
 /**
- * @function wpb_block_builder_metabox_title
+ * @function wpb_block_metabox_title
  * @since 1.0.0
  */
-function wpb_block_builder_metabox_title($post_type)
+function wpb_block_metabox_title($post_type)
 {
-	return apply_filters('wpb/block_builder_metabox_title', 'Blocks', $post_type);
+	return apply_filters('wpb/block_metabox_title', 'Blocks', $post_type);
 }
 
 /**
- * @function wpb_block_builder_metabox_priority
+ * @function wpb_block_metabox_priority
  * @since 1.0.0
  */
-function wpb_block_builder_metabox_priority($post_type)
+function wpb_block_metabox_priority($post_type)
 {
-	return apply_filters('wpb/block_builder_metabox_priority', 'low', $post_type);
+	return apply_filters('wpb/block_metabox_priority', 'low', $post_type);
 }
 
 /**
@@ -270,6 +275,40 @@ function wpb_render_block_edit_link()
 		$context['page_id'] = $block->get_page_id();
 		Timber::render('block-edit-link.twig', $context);
 	}
+}
+
+/**
+ * @function wpb_render_block_copy_link
+ * @since 0.3.0
+ */
+function wpb_render_block_copy_link()
+{
+	$block = Block::get_current();
+	if ($block == null) {
+		return;
+	}
+
+	$context = Timber::get_context();
+	$context['post_id'] = $block->get_post_id();
+	$context['page_id'] = $block->get_page_id();
+	Timber::render('block-copy-link.twig', $context);
+}
+
+/**
+ * @function wpb_render_block_move_link
+ * @since 0.3.0
+ */
+function wpb_render_block_move_link()
+{
+	$block = Block::get_current();
+	if ($block == null) {
+		return;
+	}
+
+	$context = Timber::get_context();
+	$context['post_id'] = $block->get_post_id();
+	$context['page_id'] = $block->get_page_id();
+	Timber::render('block-move-link.twig', $context);
 }
 
 /**
@@ -341,7 +380,7 @@ function wpb_render_block_area($area_id)
 
 	echo '</ul>';
 
-	echo '<div class="button block-picker-modal-show" data-area-id="' . $area_id . '">Add block</div>';
+	echo '<div class="button block-metabox-modal-show" data-area-id="' . $area_id . '">Add block</div>';
 }
 
 /**
@@ -418,6 +457,8 @@ function wpb_render_block_attr($post, $base) {
 //------------------------------------------------------------------------------
 
 TimberHelper::function_wrapper('wpb_render_block_edit_link');
+TimberHelper::function_wrapper('wpb_render_block_copy_link');
+TimberHelper::function_wrapper('wpb_render_block_move_link');
 TimberHelper::function_wrapper('wpb_render_block_remove_link');
 TimberHelper::function_wrapper('wpb_render_block_outline');
 TimberHelper::function_wrapper('wpb_render_block_preview');

@@ -91,17 +91,34 @@
 }
 
 .block-edit,
+.block-copy,
+.block-move,
 .block-remove {
 	float: left;
 }
 
+.block-copy a,
+.block-move a,
 .block-remove a {
 	display: block;
 	font-size: 12px;
 	height: 28px;
 	line-height: 28px;
-	margin-left: 10px;
-	margin-right: 10px;
+	margin-left: 5px;
+	margin-right: 5px;
+	text-decoration: none;
+}
+
+.block-edit a.button.button-edit-block {
+	margin-left: 5px;
+}
+
+.block-remove a {
+	color: #a00;
+}
+
+.block-remove a:hover {
+	color: red;
 }
 
 .block-content {
@@ -276,7 +293,7 @@
 	margin: 0px;
 }
 
-#poststuff .block-content-preview .button:not(.block-picker-modal-show):not(.button-edit-block) {
+#poststuff .block-content-preview .button:not(.block-metabox-modal-show):not(.button-edit-block) {
 	background: #f7f7f7;
 	border: 1px solid #cccccc;
 	border-radius: 0px;
@@ -285,11 +302,11 @@
 	margin: 5px;
 }
 
-#poststuff .block-content-preview .button:not(.block-picker-modal-show):not(.button-edit-block) p {
+#poststuff .block-content-preview .button:not(.block-metabox-modal-show):not(.button-edit-block) p {
 	display: inline-block;
 }
 
-#poststuff .block-content-preview .button:not(.block-picker-modal-show):not(.button-edit-block) a {
+#poststuff .block-content-preview .button:not(.block-metabox-modal-show):not(.button-edit-block) a {
 	color: inherit;
 	text-decoration: none;
 	text-transform: none;
@@ -345,7 +362,7 @@
    Block Picker Modal
    ========================================================================== */
 
-.block-picker-modal {
+.block-metabox-modal {
 	background: rgba(0, 0, 0, 0.7);
 	bottom: 0px;
 	left: 0px;
@@ -356,11 +373,11 @@
 	z-index: 100050;
 }
 
-.block-picker-modal.block-picker-modal-visible {
+.block-metabox-modal.block-metabox-modal-visible {
 	visibility: visible;
 }
 
-.block-picker-modal-frame {
+.block-metabox-modal-frame {
 	background: #fff;
 	bottom: 30px;
 	left: 30px;
@@ -369,7 +386,7 @@
 	right: 30px;
 }
 
-.block-picker-modal-header {
+.block-metabox-modal-header {
 	box-sizing: border-box;
 	background: #fafafa;
 	border-bottom: 1px solid #dedede;
@@ -378,14 +395,14 @@
 	padding-right: 30px;
 }
 
-.block-picker-modal-header h1 {
+.block-metabox-modal-header h1 {
 	height: 60px;
 	line-height: 60px;
 	margin: 0px !important;
 	padding: 0px !important;
 }
 
-.block-picker-modal-content {
+.block-metabox-modal-content {
 	bottom: 0px;
 	left: 0px;
 	overflow: auto;
