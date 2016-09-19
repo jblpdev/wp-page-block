@@ -293,7 +293,7 @@
 	margin: 0px;
 }
 
-#poststuff .block-content-preview .button:not(.block-metabox-modal-show):not(.button-edit-block) {
+#poststuff .block-content-preview .button:not(.block-add-button):not(.button-edit-block) {
 	background: #f7f7f7;
 	border: 1px solid #cccccc;
 	border-radius: 0px;
@@ -302,11 +302,11 @@
 	margin: 5px;
 }
 
-#poststuff .block-content-preview .button:not(.block-metabox-modal-show):not(.button-edit-block) p {
+#poststuff .block-content-preview .button:not(.block-add-button):not(.button-edit-block) p {
 	display: inline-block;
 }
 
-#poststuff .block-content-preview .button:not(.block-metabox-modal-show):not(.button-edit-block) a {
+#poststuff .block-content-preview .button:not(.block-add-button):not(.button-edit-block) a {
 	color: inherit;
 	text-decoration: none;
 	text-transform: none;
@@ -358,59 +358,6 @@
 	visibility: visible !important
 }
 
-/* ==========================================================================
-   Block Picker Modal
-   ========================================================================== */
-
-.block-metabox-modal {
-	background: rgba(0, 0, 0, 0.7);
-	bottom: 0px;
-	left: 0px;
-	position: fixed;
-	visibility: hidden;
-	right: 0px;
-	top: 0px;
-	z-index: 100050;
-}
-
-.block-metabox-modal.block-metabox-modal-visible {
-	visibility: visible;
-}
-
-.block-metabox-modal-frame {
-	background: #fff;
-	bottom: 30px;
-	left: 30px;
-	position: absolute;
-	top: 30px;
-	right: 30px;
-}
-
-.block-metabox-modal-header {
-	box-sizing: border-box;
-	background: #fafafa;
-	border-bottom: 1px solid #dedede;
-	height: 60px;
-	padding-left: 30px;
-	padding-right: 30px;
-}
-
-.block-metabox-modal-header h1 {
-	height: 60px;
-	line-height: 60px;
-	margin: 0px !important;
-	padding: 0px !important;
-}
-
-.block-metabox-modal-content {
-	bottom: 0px;
-	left: 0px;
-	overflow: auto;
-	position: absolute;
-	padding: 30px;
-	right: 0px;
-	top: 60px;
-}
 
 /* ==========================================================================
    Block Templates
@@ -537,7 +484,7 @@
    Block Edit Modal
    ========================================================================== */
 
-.block-edit-modal {
+.block-metabox-modal {
 	background: rgba(0, 0, 0, 0.7);
 	bottom: 0px;
 	left: 0px;
@@ -548,11 +495,11 @@
 	z-index: 100050;
 }
 
-.block-edit-modal.block-edit-modal-visible {
+.block-metabox-modal.block-metabox-modal-visible {
 	visibility: visible;
 }
 
-.block-edit-modal-frame {
+.block-metabox-modal-frame {
 	background: #fff url(../images/loader.gif) no-repeat center center;
 	bottom: 30px;
 	left: 30px;
@@ -561,7 +508,7 @@
 	right: 30px;
 }
 
-.block-edit-modal-header {
+.block-metabox-modal-header {
 	box-sizing: border-box;
 	background: #fafafa;
 	border-bottom: 1px solid #dedede;
@@ -570,18 +517,27 @@
 	padding-right: 30px;
 }
 
-.block-edit-modal-header h1 {
+.block-metabox-modal-header h1 {
 	height: 60px;
 	line-height: 60px;
 	margin: 0px !important;
 	padding: 0px !important;
 }
 
-.block-edit-modal-content {
+.block-metabox-modal-content {
 	bottom: 0px;
 	left: 0px;
 	position: absolute;
 	padding: 0px;
 	right: 0px;
 	top: 60px;
+}
+
+#wpb-pick-modal .block-metabox-modal-frame {
+	background: #fff;
+}
+
+#wpb-pick-modal .block-metabox-modal-content {
+	overflow: auto;
+	padding: 30px;
 }

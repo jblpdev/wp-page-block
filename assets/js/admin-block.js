@@ -11,13 +11,10 @@ $(document).ready(function() {
 	})
 
 	if (window.location.hash == '#block_saved') {
-
     	var post = vars['post']
     	if (post) {
-    		window.top.wpbRefreshBlock(post)
+    		window.top.wpb_refreshBlock(post)
     	}
-
-		window.top.wpbHideBlockEditor()
 	}
 
 	$('#publish').on('click', function() {

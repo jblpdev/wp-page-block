@@ -1,38 +1,59 @@
 (function($) {
 
+$.fn.wpb_modal = function(options) {
+
+	var element = $(this)
+
+	if (typeof options === 'string') {
+
+		switch (options) {
+			case 'show':
+				element.data('wpb_modal').show()
+				break
+			case 'hide':
+				element.data('wpb_modal').hide()
+				break
+		}
+
+		return this
+	}
+
+	options = options || {}
+
+	var instance = {
+
+		show: function() {
+			element.toggleClass('block-metabox-modal-visible', true)
+			if (options.onShow) {
+				options.onShow()
+			}
+		},
+
+		hide: function() {
+			element.toggleClass('block-metabox-modal-visible', false)
+			if (options.onHide) {
+				options.onHide()
+			}
+		}
+	}
+
+	element.data('wpb_modal', instance)
+	element.find('.block-metabox-modal-hide').on('click', function() {
+		instance.hide()
+	})
+}
+
 $(document).ready(function() {
 
-	/**
-	 * @function wpbHideBlockPicker
-	 * @since 1.0.0
-	 */
-	var hideBlockPicker = window.wpbHideBlockPicker = function() {
-		$('.block-metabox-modal').removeClass('block-metabox-modal-visible')
-	}
+	//--------------------------------------------------------------------------
+	// Public Functions
+	//--------------------------------------------------------------------------
 
 	/**
-	 * @function wpbShowBlockEditor
+	 * @function wpb_refreshBlock
 	 * @since 1.0.0
 	 */
-	var showBlockEditor = window.wpbShowBlockEditor = function(url, source) {
-		$('.block-edit-modal').addClass('block-edit-modal-visible')
-		$('.block-edit-modal iframe').attr('src', url)
-	}
-
-	/**
-	 * @function wpbHideBlockEditor
-	 * @since 1.0.0
-	 */
-	var hideBlockEditor = window.wpbHideBlockEditor = function() {
-		$('.block-edit-modal').removeClass('block-edit-modal-visible')
-		$('.block-edit-modal iframe').attr('src', '')
-	}
-
-	/**
-	 * @function wpbRefreshBlock
-	 * @since 1.0.0
-	 */
-	var refreshBlock = window.wpbRefreshBlock = function(postId) {
+	window.wpb_refreshBlock = function(postId) {
 
 		var content = $('[data-post-id="' + postId + '"] .block-content').addClass('block-content-updating')
 
@@ -44,37 +65,15 @@ $(document).ready(function() {
 				content.removeClass('block-content-updating')
 			}
 		})
+
+		$('#wpb-edit-modal').wpb_modal('hide')
 	}
 
 	/**
-	 * @function wpbReplaceBlock
+	 * @function wpb_appendBlock
 	 * @since 1.0.0
 	 */
-	var replaceBlock = window.wpbReplaceBlock = function(postId, buid, callback) {
-
-		var block = $('[data-post-id="' + postId + '"]')
-
-		var pageId = block.attr('data-page-id')
-
-		$.post(ajaxurl, {
-			'action': 'remove_page_block',
-			'post_id': postId,
-			'page_id': pageId
-		}, function() {
-
-			appendBlock(block.closest('.blocks'), buid, null, null, callback)
-
-			block.remove()
-		})
-
-		block.find('.block-content').addClass('block-content-updating')
-	}
-
-	/**
-	 * @function wpbAppendBlock
-	 * @since 1.0.0
-	 */
-	var appendBlock = window.wpbAppendBlock = function(blocks, buid, intoId, areaId, callback) {
+	window.wpb_appendBlock = function(blocks, buid, intoId, areaId, callback) {
 
 		var pageId = $('#post_ID').val()
 		if (pageId == null)  {
@@ -89,7 +88,7 @@ $(document).ready(function() {
 			'area_id': areaId,
 		}, function(result) {
 
-			var block = setupBlock(result)
+			var block = createBlock(result)
 
 			if (callback) {
 				callback(block)
@@ -102,10 +101,38 @@ $(document).ready(function() {
 	}
 
 	/**
-	 * @function setupBlock
+	 * @function wpb_replaceBlock
 	 * @since 1.0.0
 	 */
-	var setupBlock = function(block) {
+	window.wpb_replaceBlock = function(postId, buid, callback) {
+
+		var block = $('[data-post-id="' + postId + '"]')
+
+		var pageId = block.attr('data-page-id')
+
+		$.post(ajaxurl, {
+			'action': 'remove_page_block',
+			'post_id': postId,
+			'page_id': pageId
+		}, function() {
+
+			wpb_appendBlock(block.closest('.blocks'), buid, null, null, callback)
+
+			block.remove()
+		})
+
+		block.find('.block-content').addClass('block-content-updating')
+	}
+
+	//--------------------------------------------------------------------------
+	// Private Functions
+	//--------------------------------------------------------------------------
+
+	/**
+	 * @function createBlock
+	 * @since 1.0.0
+	 */
+	var createBlock = function(block) {
 
 		block = $(block)
 
@@ -119,19 +146,29 @@ $(document).ready(function() {
 		}
 
 		block.find('.block-edit a').on('mousedown', cancel)
+		block.find('.block-move a').on('mousedown', cancel)
+		block.find('.block-copy a').on('mousedown', cancel)
 		block.find('.block-remove a').on('mousedown', cancel)
 
-		block.find('.block-edit a').on('click', function(e) {
+		var onEditButtonClick = function(e) {
 
 			cancel(e)
 
 			var href = $(this).attr('href')
-			var post = $(this).closest('[data-post-id]').attr('data-post-id')
 
-			showBlockEditor(href, post)
-		})
+			$('#wpb-edit-modal').wpb_modal('show')
+			$('#wpb-edit-modal iframe').attr('src', href)
+		}
 
-		block.find('.block-remove a').on('click', function(e) {
+		var onMoveButtonClick = function(e) {
+			$('#wpb-move-modal').wpb_modal('show')
+		}
+
+		var onCopyButtonClick = function(e) {
+			$('#wpb-copy-modal').wpb_modal('show')
+		}
+
+		var onRemoveButtonClick = function(e) {
 
 			cancel(e)
 
@@ -151,7 +188,12 @@ $(document).ready(function() {
 
 				$(document.body).toggleClass('wp-page-block-post-editor-disabled', $('.block').length)
 			}
-		})
+		}
+
+		block.find('.block-edit a').on('click', onEditButtonClick)
+		block.find('.block-copy a').on('click', onMoveButtonClick)
+		block.find('.block-move a').on('click', onCopyButtonClick)
+		block.find('.block-remove a').on('click', onRemoveButtonClick)
 
 		block.on('mousedown', function() {
 			var parent = block.closest('.blocks')
@@ -164,94 +206,83 @@ $(document).ready(function() {
 			block.closest('.blocks').css('height', '')
 		})
 
-		createSortable()
+		$('.blocks').sortable('refresh')
 
 		return block
 	}
 
-	var sortableInitialized = false
+	$('#wpb-edit-modal').wpb_modal({
+		onHide: function() {
+			$('#wpb-edit-modal iframe').attr('src', '')
+		}
+	})
+
+	$('#wpb-pick-modal').wpb_modal()
+	$('#wpb-move-modal').wpb_modal()
+	$('#wpb-copy-modal').wpb_modal()
+
+	var blockAreaId = null
+	var blockPostId = null
+	var blockPageId = null
 
 	/**
-	 * @function createSortable
+	 * Initializes each blocks.
 	 * @since 1.0.0
 	 */
-	var createSortable = function() {
-
-		if (sortableInitialized == false) {
-			sortableInitialized = true
-
-			var options = {
-				 connectWith: '.blocks',
-				 cancel: '.disable, select, input',
-				 stop: function(event, ui) {
-				 	var item = $(ui.item)
-				 	var intoIdInput = item.find('> [name="_wpb_blocks_into_id[]"]')
-				 	var areaIdInput = item.find('> [name="_wpb_blocks_area_id[]"]')
-				 	var intoId = item.parent().closest('[data-post-id]').attr('data-post-id') || 0
-				 	var areaId = item.parent().closest('[data-area-id]').attr('data-area-id') || 0
-				 	intoIdInput.val(intoId)
-				 	areaIdInput.val(areaId)
-				 }
-			}
-
-			$('.blocks').sortable(options)
-			$('.blocks').disableSelection()
-			return
-		}
-
-		$('.blocks').sortable('refresh')
-	}
-
-	$('.wp-admin').each(function(i, element) {
-
-		if ($(element).find('#poststuff').length === 0 ||
-			$(element).find('#wpb_block_metabox').length === 0) {
-			return
-		}
+	$('.wp-admin #poststuff #wpb_block_metabox').each(function(i, element) {
 
 		$(document.body).toggleClass('wp-page-block-post-editor-disabled', $('.block').length > 0)
 
-		var blockPickerAreaId = null
-		var blockPickerPostId = null
-		var blockPickerPageId = null
-
-		/**
-		 * @since 1.0.0
-		 */
-		var showBlockPicker = function() {
-			blockPickerAreaId = $(this).attr('data-area-id') || 0
-			blockPickerPostId = $(this).closest('[data-post-id]').attr('data-post-id') || 0
-			blockPickerPageId = $(this).closest('[data-page-id]').attr('data-page-id') || 0
-			$('#wpb-pick.block-metabox-modal').addClass('block-metabox-modal-visible')
+		var options = {
+			connectWith: '.blocks',
+			cancel: '.disable, select, input',
+			stop: function(event, ui) {
+			 	var item = $(ui.item)
+			 	var intoIdInput = item.find('> [name="_wpb_blocks_into_id[]"]')
+			 	var areaIdInput = item.find('> [name="_wpb_blocks_area_id[]"]')
+			 	var intoId = item.parent().closest('[data-post-id]').attr('data-post-id') || 0
+			 	var areaId = item.parent().closest('[data-area-id]').attr('data-area-id') || 0
+			 	intoIdInput.val(intoId)
+				areaIdInput.val(areaId)
+			}
 		}
 
-		createSortable()
-
+		$('.blocks').sortable(options)
+		$('.blocks').disableSelection()
 		$('.blocks').each(function(i, element) {
-			setupBlock(element)
+			createBlock(element)
 		})
+	})
 
-		$('#wpb_block_metabox').on('click', '.block-metabox-modal-show', showBlockPicker)
-		$('#wpb_block_metabox').on('click', '.block-metabox-modal-hide', hideBlockPicker)
-		$('#wpb_block_metabox').on('click', '.block-edit-modal-hide', hideBlockEditor)
+	/**
+	 * Shows the block picker.
+	 * @since 1.0.0
+	 */
+	$('.wp-admin').on('click', '.block-add-button', function() {
+		blockAreaId = $(this).attr('data-area-id') || 0
+		blockPostId = $(this).closest('[data-post-id]').attr('data-post-id') || 0
+		blockPageId = $(this).closest('[data-page-id]').attr('data-page-id') || 0
+		$('#wpb-pick-modal').wpb_modal('show')
+	})
 
-		$('.block-template-info-action .button-insert').on('click', function() {
+	/**
+	 * Inserts a block in the current hierarchy.
+	 * @since 1.0.0
+	 */
+	$('.wp-admin #wpb-pick-modal .block-insert-button').on('click', function() {
 
-			var buid = $(this).closest('.block-template-info').attr('data-buid')
-			if (buid == null) {
-				hideBlockPicker()
-				return
-			}
+		var buid = $(this).closest('.block-template-info').attr('data-buid')
+		if (buid) {
 
-			var blocks = $('.blocks[data-area-id="' + blockPickerAreaId + '"]').eq(0)
+			var blocks = $('.wp-admin .blocks[data-area-id="' + blockAreaId + '"]').eq(0)
 			if (blocks.length == 0) {
 				blocks = $('.blocks').eq(0)
 			}
 
-			appendBlock(blocks, buid, blockPickerPostId, blockPickerAreaId)
+			wpb_appendBlock(blocks, buid, blockPostId, blockAreaId)
+		}
 
-			hideBlockPicker()
-		})
+		$('#wpb-pick-modal').wpb_modal('hide')
 	})
 })
 

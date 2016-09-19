@@ -380,7 +380,7 @@ function wpb_render_block_area($area_id)
 
 	echo '</ul>';
 
-	echo '<div class="button block-metabox-modal-show" data-area-id="' . $area_id . '">Add block</div>';
+	echo '<div class="button block-add-button" data-area-id="' . $area_id . '">Add block</div>';
 }
 
 /**
