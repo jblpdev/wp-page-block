@@ -10,28 +10,39 @@
 
 <div id="wpb-primary-add-block" class="button block-add-button">Add block</div>
 
-
-<div id="wpb-copy" class="block-metabox-modal">
+<div id="wpb-copy-modal" class="block-metabox-modal">
 	<div class="block-metabox-modal-frame">
 		<div class="block-metabox-modal-header">
 			<h1>Copy Block</h1>
 			<button type="button" class="button-link media-modal-close block-metabox-modal-hide"><span class="media-modal-icon"><span class="screen-reader-text">Close</span></span></button>
 		</div>
-	</div>
-	<div class="block-metabox-modal-content">
-		{{ pages }}
+		<div class="block-metabox-modal-content">
+			<h2>Select the page to copy this block to:</h2>
+			<ul class="block-metabox-pages">
+				{{pages}}
+			</ul>
+		</div>
+		<div class="block-metabox-pages-action">
+			<div class="button button-primary button-large">Copy</div><span class="spinner"></span>
+		</div>
 	</div>
 </div>
 
-<div id="wpb-move" class="block-metabox-modal">
+<div id="wpb-move-modal" class="block-metabox-modal">
 	<div class="block-metabox-modal-frame">
 		<div class="block-metabox-modal-header">
 			<h1>Move Block</h1>
 			<button type="button" class="button-link media-modal-close block-metabox-modal-hide"><span class="media-modal-icon"><span class="screen-reader-text">Close</span></span></button>
 		</div>
-	</div>
-	<div class="block-metabox-modal-content">
-		{{ pages }}
+		<div class="block-metabox-modal-content">
+			<h2>Select the page to move this block to:</h2>
+			<ul class="block-metabox-pages">
+				{{pages}}
+			</ul>
+		</div>
+		<div class="block-metabox-pages-action">
+			<div class="button button-primary button-large">Move</div><span class="spinner"></span>
+		</div>
 	</div>
 </div>
 

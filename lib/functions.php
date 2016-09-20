@@ -3,6 +3,7 @@
 require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once WP_CONTENT_DIR . '/plugins/wp-page-block/Block.php';
 require_once WP_CONTENT_DIR . '/plugins/wp-page-block/Layout.php';
+require_once WP_CONTENT_DIR . '/plugins/wp-page-block/lib/page-walker.php';
 
 $_block_template_infos_cache = null;
 
@@ -182,7 +183,9 @@ function wpb_block_metabox()
 			ksort($categories);
 
 			$pages = wp_list_pages(array(
-				'echo' => false
+				'title_li' => '',
+				'echo' => false,
+				'walker' => new WPB_Walker_Page()
 			));
 
 			$data = Timber::get_context();
@@ -288,10 +291,12 @@ function wpb_render_block_copy_link()
 		return;
 	}
 
-	$context = Timber::get_context();
-	$context['post_id'] = $block->get_post_id();
-	$context['page_id'] = $block->get_page_id();
-	Timber::render('block-copy-link.twig', $context);
+	if ($block->is_copyable()) {
+		$context = Timber::get_context();
+		$context['post_id'] = $block->get_post_id();
+		$context['page_id'] = $block->get_page_id();
+		Timber::render('block-copy-link.twig', $context);
+	}
 }
 
 /**
@@ -305,10 +310,12 @@ function wpb_render_block_move_link()
 		return;
 	}
 
-	$context = Timber::get_context();
-	$context['post_id'] = $block->get_post_id();
-	$context['page_id'] = $block->get_page_id();
-	Timber::render('block-move-link.twig', $context);
+	if ($block->is_movable()) {
+		$context = Timber::get_context();
+		$context['post_id'] = $block->get_post_id();
+		$context['page_id'] = $block->get_page_id();
+		Timber::render('block-move-link.twig', $context);
+	}
 }
 
 /**

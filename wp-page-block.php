@@ -110,7 +110,7 @@ add_action('admin_init', function() {
 	 * it was added to. This metabox is hidden.
 	 * @since 1.0.0
 	 */
-	add_meta_box('wpb_block_post_info', 'Page', function() {
+	add_meta_box('wpb_disabled_editor', 'Page', function() {
 
 		echo 'The post editor has been disabled because this page contains blocks.';
 
@@ -162,16 +162,15 @@ add_action('admin_enqueue_scripts', function() {
 
 	foreach (wpb_block_context() as $post_type) {
 		if (get_post_type() == $post_type) {
-			wp_enqueue_script('jquery_nestable', WPB_URL . 'assets/js/jquery-nestable.js', false, WPB_VERSION);
-			wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-page.js', false, WPB_VERSION);
-			wp_enqueue_style('wpb_admin_render_block_list_form_css', WPB_URL . 'assets/css/admin-page.css', false, WPB_VERSION);
+			wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/block-metabox.js', false, WPB_VERSION);
+			wp_enqueue_style('wpb_admin_render_block_list_form_css', WPB_URL . 'assets/css/block-metabox.css', false, WPB_VERSION);
 			wp_enqueue_style('wpb_admin_render_block_list_grid_css', WPB_URL . 'assets/css/admin-grid.css', false, WPB_VERSION);
 		}
 	}
 
 	if (get_post_type() == 'wpb-block') {
-		wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/admin-block.js', false, WPB_VERSION);
-		wp_enqueue_style('wpb_admin_block_css', WPB_URL . 'assets/css/admin-block.css', false, WPB_VERSION);
+		wp_enqueue_script('wpb_admin_render_block_list_form_js', WPB_URL . 'assets/js/block-edit.js', false, WPB_VERSION);
+		wp_enqueue_style('wpb_admin_block_css', WPB_URL . 'assets/css/block-edit.css', false, WPB_VERSION);
 	}
 
 	if (is_readable(get_template_directory() . '/editor-style-shared.css')) {
@@ -420,6 +419,55 @@ add_action('wp_ajax_add_page_block', function() {
 });
 
 /**
+ * Moves a block to another page.
+ * @action wp_ajax_move_page_block
+ * @since 1.0.0
+ */
+add_action('wp_ajax_move_page_block', function() {
+
+	$source_page_id = $_POST['source_page_id'];
+	$source_post_id = $_POST['source_post_id'];
+	$target_page_id = $_POST['target_page_id'];
+
+	$source_page_blocks = wpb_get_blocks($source_page_id);
+	$target_page_blocks = wpb_get_blocks($target_page_id);
+
+	if ($source_page_blocks == null) $source_page_blocks = array();
+	if ($target_page_blocks == null) $target_page_blocks = array();
+
+	foreach ($source_page_blocks as $i => $source_page_block) {
+		if ($source_page_block['post_id'] == $source_post_id) {
+			$source_page_block['into_id'] = 0;
+			$source_page_block['area_id'] = 0;
+			$target_page_blocks[  ] = $source_page_block;
+			$source_page_blocks[$i] = null;
+			continue;
+		}
+	}
+
+	$source_page_blocks = array_filter($source_page_blocks, function($item) {
+		return !!$item;
+	});
+
+	update_post_meta($source_page_id, '_wpb_blocks', $source_page_blocks);
+	update_post_meta($target_page_id, '_wpb_blocks', $target_page_blocks);
+
+	exit;
+});
+
+/**
+ * Copies a block to another page.
+ * @action wp_ajax_copy_page_block
+ * @since 1.0.0
+ */
+add_action('wp_ajax_copy_page_block', function() {
+	$source_page_id = $_POST['source_page_id'];
+	$source_post_id = $_POST['source_post_id'];
+	$target_page_id = $_POST['source_page_id'];
+	exit;
+});
+
+/**
  * Removes a block from a page.
  * @action wp_ajax_remove_page_block
  * @since 1.0.0
@@ -430,12 +478,20 @@ add_action('wp_ajax_remove_page_block', function() {
 	$page_id = $_POST['page_id'];
 
 	$page_blocks = wpb_get_blocks($page_id);
+
 	if ($page_blocks == null) {
 		return;
 	}
 
 	$page_blocks = array_filter($page_blocks, function($page_block) use ($post_id) {
-		return $page_block['post_id'] != $post_id;
+
+		if ($page_block['post_id'] == $post_id ||
+			$page_block['into_id'] == $post_id) {
+			return false;
+		}
+
+		return true;
+
 	});
 
 	update_post_meta($page_id, '_wpb_blocks', $page_blocks);

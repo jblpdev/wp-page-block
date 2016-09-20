@@ -141,6 +141,26 @@ class Block
 	}
 
 	/**
+	 * Returns whether this block can be copied.
+	 * @method is_copyable
+	 * @since 1.0.0
+	 */
+	public function is_copyable()
+	{
+		return true;
+	}
+
+	/**
+	 * Returns whether this block can be moved.
+	 * @method is_movable
+	 * @since 1.0.0
+	 */
+	public function is_movable()
+	{
+		return true;
+	}
+
+	/**
 	 * Renders the outline template.
 	 * @method render_outline
 	 * @since 1.0.0

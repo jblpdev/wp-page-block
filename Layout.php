@@ -18,6 +18,28 @@ class Layout extends Block
 	}
 
 	/**
+	 * Returns whether this block can be copied.
+	 * @method is_copyable
+	 * @since 1.0.0
+	 */
+	public function is_copyable()
+	{
+		// Features to copy layouts are not completed yet.
+		return false;
+	}
+
+	/**
+	 * Returns whether this block can be moved.
+	 * @method is_movable
+	 * @since 1.0.0
+	 */
+	public function is_movable()
+	{
+		// Features to move layouts are not completed yet.
+		return false;
+	}
+
+	/**
 	 * Renders a specific area of this block.
 	 * @method render_children
 	 * @since 0.3.0

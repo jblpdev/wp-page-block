@@ -6,23 +6,23 @@
 	display: none !important;
 }
 
-.wp-page-block-post-editor-disabled #wpb_block_post_info {
+.wp-page-block-post-editor-disabled #wpb_disabled_editor {
 	display: block;
 }
 
-#wpb_block_post_info {
+#wpb_disabled_editor {
 	display: none;
 	background: transparent;
 	border: none;
 	box-shadow: none;
 }
 
-#wpb_block_post_info h2,
-#wpb_block_post_info button {
+#wpb_disabled_editor h2,
+#wpb_disabled_editor button {
 	display: none;
 }
 
-#wpb_block_post_info .inside {
+#wpb_disabled_editor .inside {
 	background: transparent;
 	font-style: italic;
 	margin: 0px;
@@ -79,7 +79,7 @@
 
 .block-name {
 	float: left;
-	font-size: 14px;
+	font-size: 13px;
 	height: 28px;
 	line-height: 28px;
 	margin: 0px;
@@ -101,7 +101,7 @@
 .block-move a,
 .block-remove a {
 	display: block;
-	font-size: 12px;
+	font-size: 11px;
 	height: 28px;
 	line-height: 28px;
 	margin-left: 5px;
@@ -110,6 +110,7 @@
 }
 
 .block-edit a.button.button-edit-block {
+	font-size: 12px;
 	margin-left: 5px;
 }
 
@@ -275,13 +276,11 @@
     margin-top: 2px;
     margin-bottom: 2px;
 	padding: 0px;
-    //padding-left: 1em;
     text-indent: -0.5em;
 }
 
 #poststuff .block-content-preview li:not(.block):before {
     color: #666;
-   //content: "• ";
 }
 
 #poststuff .block-content-preview p {
@@ -357,7 +356,6 @@
 	background: rgba(0, 0, 0, 0.10);
 	visibility: visible !important
 }
-
 
 /* ==========================================================================
    Block Templates
@@ -528,7 +526,6 @@
 	bottom: 0px;
 	left: 0px;
 	position: absolute;
-	padding: 0px;
 	right: 0px;
 	top: 60px;
 }
@@ -540,4 +537,117 @@
 #wpb-pick-modal .block-metabox-modal-content {
 	overflow: auto;
 	padding: 30px;
+}
+
+#wpb-copy-modal .block-metabox-modal-frame,
+#wpb-move-modal .block-metabox-modal-frame {
+	background: #fff;
+}
+
+#wpb-copy-modal .block-metabox-modal-content,
+#wpb-move-modal .block-metabox-modal-content {
+	overflow: auto;
+	padding: 30px;
+}
+
+#wpb-copy-modal h2,
+#wpb-move-modal h2 {
+	font-weight: bold;
+	margin-bottom: 20px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+#wpb-copy-modal .block-metabox-pages {
+	margin: 0px;
+	margin-top: 10px;
+	padding: 0px;
+}
+
+#wpb-copy-modal .block-metabox-pages li,
+#wpb-move-modal .block-metabox-pages li {
+	margin: 0px;
+}
+
+#wpb-copy-modal .block-metabox-pages li a,
+#wpb-move-modal .block-metabox-pages li a {
+	border-top: 1px solid #dedede;
+	display: block;
+	margin: 0px;
+	padding: 15px;
+	text-decoration: none;
+}
+
+#wpb-copy-modal .block-metabox-pages li a:focus,
+#wpb-move-modal .block-metabox-pages li a:focus {
+	outline: none;
+	box-shadow: none;
+	color: #0073aa;
+}
+
+#wpb-copy-modal .block-metabox-pages li a.selected,
+#wpb-move-modal .block-metabox-pages li a.selected {
+	background: #f3fafd;
+}
+
+#wpb-copy-modal .block-metabox-pages li a.selected:before,
+#wpb-move-modal .block-metabox-pages li a.selected:before {
+	content: "\f147";
+    display: inline-block;
+    font: normal 20px/1 dashicons;
+    left: 6px;
+    padding: 0 5px 0 0;
+    position: absolute;
+    speak: none;
+}
+
+#wpb-copy-modal .block-metabox-pages li > ul > li > a,
+#wpb-move-modal .block-metabox-pages li > ul > li > a {
+	padding-left: 30px;
+}
+
+#wpb-copy-modal .block-metabox-pages li > ul > li > ul > li > a,
+#wpb-move-modal .block-metabox-pages li > ul > li > ul > li > a {
+	padding-left: 45px;
+}
+
+#wpb-copy-modal .block-metabox-pages li > ul > li > ul > li > ul > li a,
+#wpb-move-modal .block-metabox-pages li > ul > li > ul > li > ul > li a {
+	padding-left: 60px;
+}
+
+#wpb-copy-modal .block-metabox-pages-action,
+#wpb-move-modal .block-metabox-pages-action {
+	border-top: 1px solid #dedede;
+	height: 45px;
+	bottom: 0px;
+	position: absolute;
+	padding-left: 10px;
+	padding-right: 10px;
+	left: 0px;
+	right: 0px;
+}
+
+#wpb-copy-modal .block-metabox-pages-action .spinner,
+#wpb-move-modal .block-metabox-pages-action .spinner {
+	float: right;
+	margin-top: 13px;
+}
+
+#wpb-copy-modal.wpb-processing .block-metabox-pages-action .spinner,
+#wpb-move-modal.wpb-processing .block-metabox-pages-action .spinner {
+	visibility: visible;
+}
+
+#wpb-copy-modal .block-metabox-pages-action .button,
+#wpb-move-modal .block-metabox-pages-action .button {
+	float: right;
+	margin-top: 7px;
+	margin-bottom: 7px;
+}
+
+#wpb-copy-modal.wpb-processing .block-metabox-pages-action .button,
+#wpb-move-modal.wpb-processing .block-metabox-pages-action .button {
+	opacity: 0.5;
+	pointer-events: none;
 }
