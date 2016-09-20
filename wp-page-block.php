@@ -436,12 +436,17 @@ add_action('wp_ajax_move_page_block', function() {
 	if ($target_page_blocks == null) $target_page_blocks = array();
 
 	foreach ($source_page_blocks as $i => $source_page_block) {
+
 		if ($source_page_block['post_id'] == $source_post_id) {
+
+			$source_page_block['page_id'] = $target_page_id;
 			$source_page_block['into_id'] = 0;
 			$source_page_block['area_id'] = 0;
+
 			$target_page_blocks[  ] = $source_page_block;
 			$source_page_blocks[$i] = null;
-			continue;
+
+			break;
 		}
 	}
 
@@ -451,7 +456,6 @@ add_action('wp_ajax_move_page_block', function() {
 
 	update_post_meta($source_page_id, '_wpb_blocks', $source_page_blocks);
 	update_post_meta($target_page_id, '_wpb_blocks', $target_page_blocks);
-
 	exit;
 });
 
@@ -461,9 +465,71 @@ add_action('wp_ajax_move_page_block', function() {
  * @since 1.0.0
  */
 add_action('wp_ajax_copy_page_block', function() {
+
+	global $wpdb;
+
 	$source_page_id = $_POST['source_page_id'];
 	$source_post_id = $_POST['source_post_id'];
-	$target_page_id = $_POST['source_page_id'];
+	$target_page_id = $_POST['target_page_id'];
+
+	$source_page_blocks = wpb_get_blocks($source_page_id);
+	$target_page_blocks = wpb_get_blocks($target_page_id);
+
+	if ($source_page_blocks == null) $source_page_blocks = array();
+	if ($target_page_blocks == null) $target_page_blocks = array();
+
+	foreach ($source_page_blocks as $i => $source_page_block) {
+
+		if ($source_page_block['post_id'] == $source_post_id) {
+
+			$source_page_block['page_id'] = $target_page_id;
+			$source_page_block['into_id'] = 0;
+			$source_page_block['area_id'] = 0;
+
+			$post = get_post($source_page_block['post_id']);
+
+			$args = array(
+				'post_content'   => $post->post_content,
+				'post_excerpt'   => $post->post_excerpt,
+				'post_name'      => $post->post_name,
+				'post_parent'    => $post->post_parent,
+				'post_password'  => $post->post_password,
+				'post_status'    => $post->post_status,
+				'post_title'     => $post->post_title,
+				'post_type'      => $post->post_type,
+			);
+
+			$target_post_id = wp_insert_post($args);
+
+			$source_metas = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE post_id=$source_post_id");
+
+			if (count($source_metas)) {
+
+				$sql_query = "INSERT INTO $wpdb->postmeta (post_id, meta_key, meta_value) ";
+
+				foreach ($source_metas as $source_meta) {
+
+					$key = $source_meta->meta_key;
+					$val = $source_meta->meta_value;
+					$val = addslashes($val);
+
+					$sql_query_sel[] = "SELECT $target_post_id, '$key', '$val'";
+				}
+
+				$sql_query .= implode(" UNION ALL ", $sql_query_sel);
+
+				$wpdb->query($sql_query);
+			}
+
+			$source_page_block['post_id'] = $target_post_id;
+
+			$target_page_blocks[] = $source_page_block;
+
+			break;
+		}
+	}
+
+	update_post_meta($target_page_id, '_wpb_blocks', $target_page_blocks);
 	exit;
 });
 
